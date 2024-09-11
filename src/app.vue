@@ -146,8 +146,8 @@ body {
 }
 
 #app {
-  width: 1920px;
-  height: 1080px;
+  width: 1080px;
+  height: 1920px;
   transform-origin: top left;
   position: relative;
   margin: 0;
