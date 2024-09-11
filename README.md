@@ -1,25 +1,7 @@
-# Electron + Vue template
-v 2.1.1
-intended for use with Node 17.
-tested with node v17.9.1.
+# Pareidolia port to Electron + Vue template
+template tested with node v17.9.1.
 
 This template demonstrates common uses of Electron and Vue at the Exploratorium. 
-
-The template includes examples of how to use the external data files. For information on external files, refer to the [Repository Wiki](https://bitbucket.org/exploratorium/electron-vue-template/wiki/Home)
-
-The template also includes examples of how to integrate the following optional elements:
-
-- Admin. Demonstrates how to integrate and customize an admin UI for the electron app.
-- Arduino. Demonstrates how to integrate sending and receiving messages to an Arduino connected via USB.
-- p5. Demonstrates how to intergrate and communicate with a p5 sketch.
-
-## Exploratorium template packages
-There are some elements of the template that are externalized into modular packages. At present, these packages include:
-
-- @explo/admin - https://bitbucket.org/exploratorium/evt-admin
-- @explo/arduino - https://bitbucket.org/exploratorium/evt-arduino
-
-Refer to the readme documents in those repositories for additional details. 
 
 ## To build or run use one of these commands:
 

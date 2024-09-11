@@ -1,7 +1,7 @@
 {
-  "name": "electron-vue-template",
+  "name": "pareidolia-electron",
   "version": "2.1.0",
-  "author": "The Exploratorium",
+  "author": "Leia Chang - The Exploratorium",
   "private": true,
   "build": {
     "appId": "edu.exploratorium.electron-vue-template",
