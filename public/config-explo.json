@@ -1,0 +1,52 @@
+{
+  "template": {
+    "stylesheet": "explo",
+    "idle": 30000
+  },
+  "sketch": {
+    "imagePath": "/assets/examples/p5/vert.png"
+  },
+  "languages": [
+    {
+      "code": "en",
+      "name": "english",
+      "direction": "ltr"
+    },
+    {
+      "code": "la",
+      "name": "latin",
+      "direction": "ltr"
+    },
+    {
+      "code": "he",
+      "name": "עברית",
+      "direction": "rtl"
+    }
+  ],
+  "arduino": {
+    "baudRate": 9600,
+    "addresses": { 
+      "BLUE": 0, 
+      "BLACK": 1
+    },
+    "debug": false
+  },
+  "admin": {
+    "ui":[
+      { 
+        "type":"button",
+        "label":"Reset Sketch",
+        "description":"Clear the p5 sketch.",
+        "endpoint":"/reset"
+      }
+    ],
+    "endpoints":[
+      {
+        "path":"/reset", 
+        "eventName":"reset"
+      }
+    ]
+  }
+
+}
+

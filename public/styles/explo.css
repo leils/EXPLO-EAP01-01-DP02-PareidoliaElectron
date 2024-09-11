@@ -1,0 +1,192 @@
+
+/* font url must be relative to style sheet to work in both dev and built app */
+@font-face {
+  font-family: "Explo";
+  src: url("../assets/fonts/Explo-Thin.otf") format("opentype");
+  font-weight: 100;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "Explo";
+  src: url("../assets/fonts/Explo-ThinIta.otf") format("opentype");
+  font-weight: 100;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: "Explo";
+  src: url("../assets/fonts/Explo-Light.otf") format("opentype");
+  font-weight: 300;
+	font-style: normal;
+}
+
+@font-face {
+  font-family: "Explo";
+  src: url("../assets/fonts/Explo-LightIta.otf") format("opentype");
+  font-weight: 300;
+	font-style: italic;
+}
+
+@font-face {
+  font-family: "Explo";
+  src: url("../assets/fonts/Explo.otf") format("opentype");
+  font-weight: 400;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "Explo";
+  src: url("../assets/fonts/Explo-Ita.otf") format("opentype");
+  font-weight: 400;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: "Explo";
+  src: url("../assets/fonts/Explo-Medi.otf") format("opentype");
+  font-weight: 500;
+	font-style: normal;
+}
+
+@font-face {
+  font-family: "Explo";
+  src: url("../assets/fonts/Explo-MediIta.otf") format("opentype");
+  font-weight: 500;
+	font-style: italic;
+}
+
+@font-face {
+  font-family: "Explo";
+  src: url("../assets/fonts/Explo-Bold.otf") format("opentype");
+  font-weight: 700;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "Explo";
+  src: url("../assets/fonts/Explo-BoldIta.otf") format("opentype");
+  font-weight: 700;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: "Explo";
+  src: url("../assets/fonts/Explo-Black.otf") format("opentype");
+  font-weight: 900;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "Explo";
+  src: url("../assets/fonts/Explo-BlackIta.otf") format("opentype");
+  font-weight: 900;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: "Explo";
+  src: url("../assets/fonts/Explo-Ultra.otf") format("opentype");
+  font-weight: 950;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "Explo";
+  src: url("../assets/fonts/Explo-UltraIta.otf") format("opentype");
+  font-weight: 950;
+  font-style: italic;
+}
+
+.font-thin, 
+.font-thin-ita {
+  font-weight: 100;
+}
+
+.font-light, 
+.font-light-ita {
+  font-weight: 300;
+}
+
+.font-normal, 
+.font-regular, 
+.font-normal-ita, 
+.font-regular-ita {
+  font-weight: 400;
+}
+
+.font-medium, 
+.font-medi, 
+.font-medium-ita, 
+.font-medi-ita  {
+  font-weight: 500;
+}
+
+.font-bold, 
+.font-bold-ita  {
+  font-weight: 700;
+}
+
+.font-black, 
+.font-black-ita {
+  font-weight: 900;
+}
+
+.font-ultra, 
+.font-ultra-ita {
+  font-weight: 950;
+}
+
+.font-thin-ita {
+  font-style: italic;
+}
+
+.font-light-ita {
+  font-style: italic;
+}
+
+.font-normal-ita, 
+.font-regular-ita {
+  font-style: italic;
+}
+
+.font-medium-ita, 
+.font-medi-ita {
+  font-style: italic;
+}
+
+.font-bold-ita {
+  font-style: italic;
+}
+
+.font-black-ita {
+  font-style: italic;
+}
+
+.font-ultra-ita {
+  font-style: italic;
+}
+
+/* by default strong and bold tags are relative to parent font-weight, we want it to always be the bold font (font-weight 700) */
+strong, b{
+  font-weight:700;
+}
+
+h1, h2 {
+  color: black;
+  font-family: "Explo";
+  font-weight: bold;
+}
+
+body {
+  background: black ;
+  font-family: "Explo";
+  font-weight: 300;
+  /* user-select: none; */
+  /* cursor:none; */
+}
+
+#app {
+  background-color: white;
+  color: black;
+}

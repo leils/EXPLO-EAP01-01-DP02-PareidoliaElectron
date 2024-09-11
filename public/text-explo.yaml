@@ -1,0 +1,18 @@
+exhibit-title:
+  en: Exhibit template (explo)
+  he: תבנית למוצג
+try-this:
+  en: |
+    <h2>Try this:</h2>
+    <p>Press '/' to toggle languages</p>
+  la: |
+    <h2>lorem ipsum:</h2>
+    <p>lorem '/' ipsum</p>
+  he: |
+    <h2>נסו את זה:</h2>
+    <p>לחצו ׳/׳ כדי לשנות שפה</p>
+always-spanish:
+  en: always is spanish
+  es: siempre es español
+  la: semper est spanish
+  he: תמיד ספרדית
