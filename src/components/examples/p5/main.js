@@ -118,11 +118,7 @@ class Sketch {
         this.buttonInfo = [ 
           {
             label: "Undo",
-            clickFunct: () => {
-              console.log('clicked undo');
-              this.undo(p);
-            } // ... this needs to get P passed to it somehow 
-          }, 
+            clickFunct: () => {this.undo(p); }}, 
           {
             label: "Submit",
             clickFunct: this.submitDrawing,
@@ -130,7 +126,7 @@ class Sketch {
           }, 
           {
             label: "Next Image",
-            clickFunct: this.nextImage
+            clickFunct: () => {this.nextImage(p)}
           }
         ]
       };
@@ -148,11 +144,6 @@ class Sketch {
         p.background('blue');
 
         this.renderBackground(p);
-
-        // let b = createButton("undo");
-        // b.mousePressed(() =>{ this.undo(p)});
-
-
         this.buttonInit(p);
       };
 
@@ -223,7 +214,7 @@ class Sketch {
       }, 30000)
   
     } else if (this.currentMode == Modes.SHOW) { // show mode -> draw mode 
-      this.nextImage(); // Move to next image after show
+      this.nextImage(p); // Move to next image after show
       for (b of this.allButtons) { b.show(); } // show all buttons
       this.currentMode = Modes.DRAW
   
@@ -275,12 +266,18 @@ class Sketch {
     //todo
   }
 
-  nextImage = () => {
-    //todo
+  nextImage = (p) => {
+    this.currentImageIndex = this.currentImageIndex >= this.loadedImages.length - 1 ? 0 : this.currentImageIndex + 1;
+    this.resetCanvas(p); // also remove the current drawings 
   }
 
   renderBackground = (p) => { 
     p.image(this.loadedImages[this.currentImageIndex].loadedImage, 0, 0, canvasW, canvasH);
+  }
+
+  resetCanvas = (p) => {
+    this.strokeList = [];
+    this.renderBackground(p);
   }
  
   //-------------------- Strokes and Drawing ---------------------//
