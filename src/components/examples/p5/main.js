@@ -69,21 +69,7 @@ const Modes = Object.freeze({
 const buttonOffset = 100;
 const buttonDeadZoneHeight = 200;
 
-// const buttonInfo = [ 
-//   {
-//     label: "Undo",
-//     clickFunct: undo
-//   }, 
-//   {
-//     label: "Submit",
-//     clickFunct: submitDrawing,
-//     className: "submitButton"
-//   }, 
-//   {
-//     label: "Next Image",
-//     clickFunct: nextImage
-//   }
-// ]
+
 
 
 /*--------------------- END -------------------------*/
@@ -95,11 +81,13 @@ class Sketch {
     this.drawTextIn = 3;
     this.font;
 
+
     this.currentMode = Modes.DRAW;
 
     this.loadedImages = [];
     this.currentImageIndex = 0;
     this.currentColorIndex = 0;
+    this.buttonInfo;
 
     this.allButtons = [];
     this.buttonHeight;
@@ -124,15 +112,35 @@ class Sketch {
           this.loadedImages.push(i);
         }
 
-        // fetchJSONDrawings(); // TODO
+        this.fetchJSONDrawings(); 
+
+
+        this.buttonInfo = [ 
+          {
+            label: "Undo",
+            clickFunct: () => {
+              console.log('clicked undo');
+              this.undo(p);
+            } // ... this needs to get P passed to it somehow 
+          }, 
+          {
+            label: "Submit",
+            clickFunct: this.submitDrawing,
+            className: "submitButton"
+          }, 
+          {
+            label: "Next Image",
+            clickFunct: this.nextImage
+          }
+        ]
       };
 
       p.setup = () => {
         // createMetaTag();
         p.createCanvas(canvasW, canvasH);
 
-        this.buttonHeight = window.innerHeight - 120;
-        this.promptTextSize = Math.floor(window.innerWidth / 21);
+        this.buttonHeight = canvasH - 120;
+        this.promptTextSize = Math.floor(canvasW / 21);
         p.textSize(this.promptTextSize);
         p.textAlign(p.CENTER);
         p.strokeWeight(setStrokeWeight);
@@ -140,16 +148,21 @@ class Sketch {
         p.background('blue');
 
         this.renderBackground(p);
-        // buttonInit();
+
+        // let b = createButton("undo");
+        // b.mousePressed(() =>{ this.undo(p)});
+
+
+        this.buttonInit(p);
       };
 
       p.draw = () => {
         if (p.currentMode == Modes.SHOW) {
-          // renderShowModeFrame();
+          renderShowModeFrame(p);
         }
-        // handleFlashAnimation();
+        this.handleFlashAnimation(p);
         if (p.currentMode != Modes.SUBMIT) {
-          // drawPrompt(); 
+          this.drawPrompt(p); 
         }
       };
 
@@ -176,9 +189,9 @@ class Sketch {
         p.pmouseX = p.mouseX;
         p.pmouseY = p.mouseY;
 
-        // if(this.currentMode == Modes.SHOW) { TODO
-        //    toggleMode();
-        // }
+        if(this.currentMode == Modes.SHOW) { 
+           this.toggleMode();
+        }
       }
 
 
@@ -192,8 +205,91 @@ class Sketch {
     this.p5SketchObject = new p5(s, 'sketch');
   }
 
+  //-------------------- Mode & Mode Control ---------------------//
+
+  toggleMode = (p) => {
+    if (this.currentMode == Modes.DRAW) { // draw -> submit -> show 
+      for (b of this.allButtons) { b.hide(); } // hide all buttons
+      this.currentMode = Modes.SUBMIT;
+      this.renderBackground(p);
+  
+      setTimeout(() => { this.showModeSetup(); },2000); //goes to ShowMode in 2 seconds
+  
+      // Set a timeout to return to draw mode after 30 seconds
+      setTimeout(() => {
+        if(this.currentMode == Modes.SHOW) {
+          this.toggleMode(p);
+        }
+      }, 30000)
+  
+    } else if (this.currentMode == Modes.SHOW) { // show mode -> draw mode 
+      this.nextImage(); // Move to next image after show
+      for (b of this.allButtons) { b.show(); } // show all buttons
+      this.currentMode = Modes.DRAW
+  
+      this.showModeTeardown();
+    } else {
+      throw Error("Unexpected toggle call during unsupported mode, likely Submit");
+    }
+  }
+
+  buttonInit = (p) => {
+    let totalWidth = 0;
+
+    //initialize all buttons, but don't place them yet
+    for (var i=0; i < this.buttonInfo.length; i++) {
+      let bInfo = this.buttonInfo[i];
+      let newButton = p.createButton(bInfo.label);
+      if (bInfo.hasOwnProperty("className")) {
+        newButton.class(bInfo.className);
+      }
+      newButton.mousePressed(bInfo.clickFunct);
+  
+      totalWidth += newButton.width;
+      this.allButtons.push(newButton);
+    }
+  
+    // centering the buttons on-screen
+    totalWidth += (this.allButtons.length - 1) * buttonOffset;
+    let spaceOffset = (canvasW - totalWidth)/2;
+  
+    for (var b of this.allButtons) {
+      b.position(spaceOffset, this.buttonHeight);
+      spaceOffset += (buttonOffset + b.width);
+    }
+  }
+
+  renderShowModeFrame = () => {
+    //todo
+  }
+
+  handleFlashAnimation = () => {
+    //todo
+  }
+
+  drawPrompt = () => {
+    //todo
+  }
+
+  showModeSetup = () => {
+    //todo
+  }
+
+  nextImage = () => {
+    //todo
+  }
+
   renderBackground = (p) => { 
     p.image(this.loadedImages[this.currentImageIndex].loadedImage, 0, 0, canvasW, canvasH);
+  }
+ 
+  //-------------------- Strokes and Drawing ---------------------//
+  fetchJSONDrawings = () => {
+    //todo
+  }
+
+  submitDrawing = () => {
+    //todo
   }
 
   endStroke = () => {
@@ -229,11 +325,13 @@ class Sketch {
 
   undo = (p) => {
     if (this.strokeList.length > 0) {
+      this.strokeList.pop();
       this.renderBackground(p); 
       this.drawStrokes(p, this.strokeList); 
     }
   }
 
+  //-------------------- Object Control ---------------------//
   reset() {
     this.p5SketchObject.reset();
   }
