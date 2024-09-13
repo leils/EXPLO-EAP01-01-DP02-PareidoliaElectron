@@ -21,7 +21,8 @@ class imageStruct {
   }
 }
 
-const imgPathBase = "assets/backgroundImages/"; // TODO: IMAGE HANDLING WILL CHANGE
+const imgPathBase = "assets/backgroundImages/";
+
 const imgPathList = [
   "tree.jpg",
   "sandstone.jpg",
@@ -112,21 +113,21 @@ class Sketch {
           this.loadedImages.push(i);
         }
 
-        this.fetchJSONDrawings(); 
+        this.fetchJSONDrawings();
 
-
-        this.buttonInfo = [ 
+        this.buttonInfo = [
           {
             label: "Undo",
-            clickFunct: () => {this.undo(p); }}, 
+            clickFunct: () => { this.undo(p); }
+          },
           {
             label: "Submit",
             clickFunct: this.submitDrawing,
             className: "submitButton"
-          }, 
+          },
           {
             label: "Next Image",
-            clickFunct: () => {this.nextImage(p)}
+            clickFunct: () => { this.nextImage(p) }
           }
         ]
       };
@@ -153,23 +154,23 @@ class Sketch {
         }
         this.handleFlashAnimation(p);
         if (p.currentMode != Modes.SUBMIT) {
-          this.drawPrompt(p); 
+          this.drawPrompt(p);
         }
       };
 
       p.reset = () => {
         p.clear();
-        this.renderBackground(p);
+        p.resetCanvas();
       };
 
       p.mouseReleased = () => {
-        if(this.currentMode == Modes.DRAW) {
+        if (this.currentMode == Modes.DRAW) {
           this.endStroke();
         }
       }
 
       p.touchEnded = () => {
-        if(this.currentMode == Modes.DRAW) {
+        if (this.currentMode == Modes.DRAW) {
           this.endStroke();
         }
       }
@@ -180,15 +181,14 @@ class Sketch {
         p.pmouseX = p.mouseX;
         p.pmouseY = p.mouseY;
 
-        if(this.currentMode == Modes.SHOW) { 
-           this.toggleMode();
+        if (this.currentMode == Modes.SHOW) {
+          this.toggleMode();
         }
       }
 
-
       p.mouseDragged = () => {
         if (this.currentMode == Modes.DRAW && this.pointerLocationIsValid(p))
-          p.line(p.pmouseX / this.appScale, p.pmouseY/this.appScale, p.mouseX/this.appScale, p.mouseY/this.appScale);
+          p.line(p.pmouseX / this.appScale, p.pmouseY / this.appScale, p.mouseX / this.appScale, p.mouseY / this.appScale);
         this.currentStroke.push({ x: p.mouseX, y: p.mouseY });
       }
     };
@@ -203,21 +203,21 @@ class Sketch {
       for (b of this.allButtons) { b.hide(); } // hide all buttons
       this.currentMode = Modes.SUBMIT;
       this.renderBackground(p);
-  
-      setTimeout(() => { this.showModeSetup(); },2000); //goes to ShowMode in 2 seconds
-  
+
+      setTimeout(() => { this.showModeSetup(); }, 2000); //goes to ShowMode in 2 seconds
+
       // Set a timeout to return to draw mode after 30 seconds
       setTimeout(() => {
-        if(this.currentMode == Modes.SHOW) {
+        if (this.currentMode == Modes.SHOW) {
           this.toggleMode(p);
         }
       }, 30000)
-  
+
     } else if (this.currentMode == Modes.SHOW) { // show mode -> draw mode 
       this.nextImage(p); // Move to next image after show
       for (b of this.allButtons) { b.show(); } // show all buttons
       this.currentMode = Modes.DRAW
-  
+
       this.showModeTeardown();
     } else {
       throw Error("Unexpected toggle call during unsupported mode, likely Submit");
@@ -228,22 +228,22 @@ class Sketch {
     let totalWidth = 0;
 
     //initialize all buttons, but don't place them yet
-    for (var i=0; i < this.buttonInfo.length; i++) {
+    for (var i = 0; i < this.buttonInfo.length; i++) {
       let bInfo = this.buttonInfo[i];
       let newButton = p.createButton(bInfo.label);
       if (bInfo.hasOwnProperty("className")) {
         newButton.class(bInfo.className);
       }
       newButton.mousePressed(bInfo.clickFunct);
-  
+
       totalWidth += newButton.width;
       this.allButtons.push(newButton);
     }
-  
+
     // centering the buttons on-screen
     totalWidth += (this.allButtons.length - 1) * buttonOffset;
-    let spaceOffset = (canvasW - totalWidth)/2;
-  
+    let spaceOffset = (canvasW - totalWidth) / 2;
+
     for (var b of this.allButtons) {
       b.position(spaceOffset, this.buttonHeight);
       spaceOffset += (buttonOffset + b.width);
@@ -258,8 +258,23 @@ class Sketch {
     //todo
   }
 
-  drawPrompt = () => {
-    //todo
+  drawPrompt = (p) => {
+    // TODO incorporate submit mode into prompt drawing for clarity
+    p.push();
+    p.fill("black");
+    p.noStroke();
+    p.rectMode(p.CORNER);
+    p.rect(0, canvasH - buttonDeadZoneHeight, canvasW, canvasH);
+
+    p.strokeWeight(3);
+    p.stroke('black');
+    p.fill('yellow');
+    if (this.currentMode == Modes.DRAW) {
+      p.text(drawPromptText, canvasW / 2, canvasH - 150);
+    } else {
+      p.text(showPromptText, canvasW / 2, canvasH - 120);
+    }
+    p.pop();
   }
 
   showModeSetup = () => {
@@ -271,7 +286,7 @@ class Sketch {
     this.resetCanvas(p); // also remove the current drawings 
   }
 
-  renderBackground = (p) => { 
+  renderBackground = (p) => {
     p.image(this.loadedImages[this.currentImageIndex].loadedImage, 0, 0, canvasW, canvasH);
   }
 
@@ -279,7 +294,7 @@ class Sketch {
     this.strokeList = [];
     this.renderBackground(p);
   }
- 
+
   //-------------------- Strokes and Drawing ---------------------//
   fetchJSONDrawings = () => {
     //todo
@@ -294,7 +309,7 @@ class Sketch {
     if (this.currentStroke.length > 1) {
       this.strokeList.push(this.currentStroke);
     }
-  
+
     //clear stroke for next touch
     this.currentStroke = [];
   }
@@ -305,15 +320,15 @@ class Sketch {
         for (var i = 1; i < stroke.length; i++) {
           var lastPoint = stroke[i - 1];
           var currentPoint = stroke[i];
-          p.line(lastPoint.x / this.appScale, lastPoint.y/this.appScale, currentPoint.x/this.appScale, currentPoint.y/this.appScale);
-        } 
+          p.line(lastPoint.x / this.appScale, lastPoint.y / this.appScale, currentPoint.x / this.appScale, currentPoint.y / this.appScale);
+        }
       }
     }
   }
 
   pointerLocationIsValid = (p) => {
     let d = p.dist(p.pmouseX, p.pmouseY, p.mouseX, p.mouseY);
-    if (d > 100 || p.mouseY/this.appScale > (1920 - buttonDeadZoneHeight)) {
+    if (d > 100 || p.mouseY / this.appScale > (1920 - buttonDeadZoneHeight)) {
       return false;
     } else {
       return true;
@@ -323,8 +338,8 @@ class Sketch {
   undo = (p) => {
     if (this.strokeList.length > 0) {
       this.strokeList.pop();
-      this.renderBackground(p); 
-      this.drawStrokes(p, this.strokeList); 
+      this.renderBackground(p);
+      this.drawStrokes(p, this.strokeList);
     }
   }
 
