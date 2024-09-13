@@ -70,9 +70,6 @@ const Modes = Object.freeze({
 const buttonOffset = 100;
 const buttonDeadZoneHeight = 200;
 
-
-
-
 /*--------------------- END -------------------------*/
 
 class Sketch {
@@ -92,7 +89,7 @@ class Sketch {
 
     this.allButtons = [];
     this.buttonHeight;
-    this.promptTextSize = 50; //Gets rewritten based on window width 
+    this.promptTextSize = 50; 
 
     this.drawingList = [];
     this.strokeList = [];
@@ -121,7 +118,7 @@ class Sketch {
             clickFunct: () => { this.undo(p); }
           },
           {
-            label: "Submit",
+            label: "Submit Your Drawing",
             clickFunct: () => {this.submitDrawing(p)},
             className: "submitButton"
           },
@@ -133,11 +130,9 @@ class Sketch {
       };
 
       p.setup = () => {
-        // createMetaTag();
         p.createCanvas(canvasW, canvasH);
 
         this.buttonHeight = canvasH - 120;
-        this.promptTextSize = Math.floor(canvasW / 21);
         p.textSize(this.promptTextSize);
         p.textAlign(p.CENTER);
         p.strokeWeight(setStrokeWeight);
@@ -227,7 +222,6 @@ class Sketch {
 
 
   showModeSetup = (p) => {
-    console.log('show mode setup');
     this.renderBackground(p);
     this.drawingsForCurrentImage = this.drawingList.filter(d => d.imgName == this.loadedImages[this.currentImageIndex].name);
     this.currentImageDrawingIndex = 0;
@@ -274,7 +268,7 @@ class Sketch {
       p.noStroke();
       p.fill('black');
       p.rectMode(p.CENTER);
-      p.rect(canvasW/2, canvasH/2 - (this.promptTextSize/3), canvasW, 100, 30);
+      p.rect(canvasW/2, canvasH/2 - (this.promptTextSize/3), canvasW, 100);
       p.strokeWeight(3);
       p.stroke('black');
       p.fill('yellow');
@@ -381,7 +375,6 @@ class Sketch {
       this.changeColor(p);
       this.toggleMode(p);
     }
-    //todo
   }
 
   changeColor = (p) => {

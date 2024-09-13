@@ -190,3 +190,19 @@ body {
   background-color: white;
   color: black;
 }
+
+button {
+  font-size: 30px;
+  font-weight: 600;
+  border: none;
+  border-radius: 5px;
+  padding: 18px;
+  color: black;
+  background:white;
+  user-select: none;
+}
+
+.submitButton {
+  background-color: yellow;
+  font-weight: 800;
+}
