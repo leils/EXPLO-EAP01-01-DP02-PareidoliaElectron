@@ -51,7 +51,7 @@ class Drawing {
     this.strokes = strokes;
   }
 }
-const drawingStorePath = "drawings.json"; // TODO: change storage path
+const drawingStorePath = "assets/drawings.json"; 
 
 const setStrokeWeight = 10;
 const colorList = ["aqua", "red", "lime", "violet", "yellow"];
@@ -122,7 +122,7 @@ class Sketch {
           },
           {
             label: "Submit",
-            clickFunct: this.submitDrawing,
+            clickFunct: () => {this.submitDrawing(p)},
             className: "submitButton"
           },
           {
@@ -149,18 +149,19 @@ class Sketch {
       };
 
       p.draw = () => {
-        if (p.currentMode == Modes.SHOW) {
-          renderShowModeFrame(p);
+        if (this.currentMode == Modes.SHOW) {
+          this.renderShowModeFrame(p);
         }
         this.handleFlashAnimation(p);
-        if (p.currentMode != Modes.SUBMIT) {
+        if (this.currentMode != Modes.SUBMIT) {
           this.drawPrompt(p);
         }
       };
 
       p.reset = () => {
         p.clear();
-        p.resetCanvas();
+        this.nextImage(p);
+        this.resetCanvas(p);
       };
 
       p.mouseReleased = () => {
@@ -178,18 +179,18 @@ class Sketch {
       p.touchStarted = () => {
         // touch functionality means the mouse can "jump" across the screen 
         // This is a hack to make sure the stroke starts where touch starts 
-        p.pmouseX = p.mouseX;
-        p.pmouseY = p.mouseY;
+        p.pmouseX = p.mouseX/this.appScale;
+        p.pmouseY = p.mouseY/this.appScale;
 
         if (this.currentMode == Modes.SHOW) {
-          this.toggleMode();
+          this.toggleMode(p);
         }
       }
 
       p.mouseDragged = () => {
         if (this.currentMode == Modes.DRAW && this.pointerLocationIsValid(p))
           p.line(p.pmouseX / this.appScale, p.pmouseY / this.appScale, p.mouseX / this.appScale, p.mouseY / this.appScale);
-        this.currentStroke.push({ x: p.mouseX, y: p.mouseY });
+        this.currentStroke.push({ x: p.mouseX/this.appScale, y: p.mouseY/this.appScale });
       }
     };
 
@@ -200,11 +201,11 @@ class Sketch {
 
   toggleMode = (p) => {
     if (this.currentMode == Modes.DRAW) { // draw -> submit -> show 
-      for (b of this.allButtons) { b.hide(); } // hide all buttons
+      for (var b of this.allButtons) { b.hide(); } // hide all buttons
       this.currentMode = Modes.SUBMIT;
       this.renderBackground(p);
 
-      setTimeout(() => { this.showModeSetup(); }, 2000); //goes to ShowMode in 2 seconds
+      setTimeout(() => { this.showModeSetup(p); }, 2000); //goes to ShowMode in 2 seconds
 
       // Set a timeout to return to draw mode after 30 seconds
       setTimeout(() => {
@@ -215,12 +216,81 @@ class Sketch {
 
     } else if (this.currentMode == Modes.SHOW) { // show mode -> draw mode 
       this.nextImage(p); // Move to next image after show
-      for (b of this.allButtons) { b.show(); } // show all buttons
+      for (var b of this.allButtons) { b.show(); } // show all buttons
       this.currentMode = Modes.DRAW
 
       this.showModeTeardown();
     } else {
       throw Error("Unexpected toggle call during unsupported mode, likely Submit");
+    }
+  }
+
+
+  showModeSetup = (p) => {
+    console.log('show mode setup');
+    this.renderBackground(p);
+    this.drawingsForCurrentImage = this.drawingList.filter(d => d.imgName == this.loadedImages[this.currentImageIndex].name);
+    this.currentImageDrawingIndex = 0;
+    this.drawingOpacity = 0;
+    this.drawingColor = p.color(this.drawingsForCurrentImage[this.currentImageDrawingIndex].colorStr);
+  
+    this.currentMode = Modes.SHOW;
+  }
+
+  showModeTeardown = () => {
+    this.currentImageDrawingIndex = 0;
+    this.drawingOpacity = 0;
+    this.drawingsForCurrentImage = [];
+  }
+
+  renderShowModeFrame = (p) => {
+    this.renderBackground(p);
+  
+    p.push();
+    let drawing = this.drawingsForCurrentImage[this.currentImageDrawingIndex];
+    this.drawingColor.setAlpha(this.drawingOpacity);
+    p.stroke(this.drawingColor);
+    this.drawStrokes(p, drawing.strokes);
+    p.pop();
+  
+    if (this.drawingOpacity < 255) {
+      this.drawingOpacity+=2;
+    } else {
+      this.nextDrawing(p);
+      this.drawingOpacity = 0;
+    }
+  }
+
+  nextDrawing = (p) => {
+    this.currentImageDrawingIndex = this.currentImageDrawingIndex < this.drawingsForCurrentImage.length - 1 ? this.currentImageDrawingIndex + 1 : 0;
+    this.drawingColor = p.color(this.drawingsForCurrentImage[this.currentImageDrawingIndex].colorStr);
+  }
+
+  handleFlashAnimation = (p) => {
+    if (this.flashOpacity > 0) {
+      p.push();
+      // Rendering submit text
+      this.renderBackground(p);
+      p.noStroke();
+      p.fill('black');
+      p.rectMode(p.CENTER);
+      p.rect(canvasW/2, canvasH/2 - (this.promptTextSize/3), canvasW, 100, 30);
+      p.strokeWeight(3);
+      p.stroke('black');
+      p.fill('yellow');
+      p.textAlign(p.CENTER);
+      p.text(afterSubmitText, canvasW/2, canvasH/2);
+      p.pop();
+  
+      p.push();
+      // Render the "flash" animation
+      p.noStroke();
+      let flashColor = p.color("white");
+      flashColor.setAlpha(this.flashOpacity);
+      p.fill(flashColor);
+      p.rect(0,0,canvasW, canvasH);
+      this.flashOpacity = this.flashOpacity - 10;
+      p.pop(0);
     }
   }
 
@@ -250,14 +320,6 @@ class Sketch {
     }
   }
 
-  renderShowModeFrame = () => {
-    //todo
-  }
-
-  handleFlashAnimation = () => {
-    //todo
-  }
-
   drawPrompt = (p) => {
     // TODO incorporate submit mode into prompt drawing for clarity
     p.push();
@@ -277,10 +339,6 @@ class Sketch {
     p.pop();
   }
 
-  showModeSetup = () => {
-    //todo
-  }
-
   nextImage = (p) => {
     this.currentImageIndex = this.currentImageIndex >= this.loadedImages.length - 1 ? 0 : this.currentImageIndex + 1;
     this.resetCanvas(p); // also remove the current drawings 
@@ -297,11 +355,38 @@ class Sketch {
 
   //-------------------- Strokes and Drawing ---------------------//
   fetchJSONDrawings = () => {
+    console.log('fetching json?')
+    fetch("assets/drawings.json")
+    .then((res) => {
+        if (!res.ok) {
+            throw new Error
+                (`HTTP error! Status: ${res.status}`);
+        }
+        return res.json();
+    })
+    .then((data) => 
+          this.drawingList = data)
+    .catch((error) => 
+           console.error("Unable to fetch data:", error));
+  }
+
+  submitDrawing = (p) => {
+    if (this.strokeList.length > 0) {
+      let d = new Drawing(this.loadedImages[this.currentImageIndex].name, this.currentImageIndex, colorList[this.currentColorIndex], this.strokeList);
+      this.drawingList.push(d);
+  
+      this.flashOpacity = 255;
+      this.strokeList = [];
+      this.renderBackground(p);
+      this.changeColor(p);
+      this.toggleMode(p);
+    }
     //todo
   }
 
-  submitDrawing = () => {
-    //todo
+  changeColor = (p) => {
+    this.currentColorIndex = this.currentColorIndex >= colorList.length - 1 ? 0 : this.currentColorIndex + 1;
+    p.stroke(colorList[this.currentColorIndex]);
   }
 
   endStroke = () => {
@@ -320,7 +405,7 @@ class Sketch {
         for (var i = 1; i < stroke.length; i++) {
           var lastPoint = stroke[i - 1];
           var currentPoint = stroke[i];
-          p.line(lastPoint.x / this.appScale, lastPoint.y / this.appScale, currentPoint.x / this.appScale, currentPoint.y / this.appScale);
+          p.line(lastPoint.x, lastPoint.y, currentPoint.x, currentPoint.y);
         }
       }
     }
