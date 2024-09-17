@@ -183,12 +183,13 @@ body {
   font-family: "Explo";
   font-weight: 300;
   /* user-select: none; */
-  /* cursor:none; */
+  cursor:none;
 }
 
 #app {
   background-color: white;
   color: black;
+  /* cursor: none; */
 }
 
 button {
@@ -200,6 +201,7 @@ button {
   color: black;
   background:white;
   user-select: none;
+  cursor: none;
 }
 
 .submitButton {

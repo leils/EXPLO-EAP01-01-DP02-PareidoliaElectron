@@ -36,7 +36,7 @@ const imgPathList = [
 // Prompts
 const drawPromptText = "Do you see something in this image? Draw it!";
 const showPromptText = "Did they see what you saw? \nTap the screen for a new image.";
-const afterSubmitText = "Great! Let's see what other people drew.";
+const afterSubmitText = "Great! Let's see what some other people drew.";
 /*--------------------- Drawings variables -------------------------*/
 /* 
  * class Drawing 
@@ -64,7 +64,6 @@ const Modes = Object.freeze({
   SUBMIT: 1,
   SHOW: 2
 });
-
 
 /*--------------------- Buttons -------------------------*/
 const buttonOffset = 100;
@@ -220,7 +219,6 @@ class Sketch {
     }
   }
 
-
   showModeSetup = (p) => {
     this.renderBackground(p);
     this.drawingsForCurrentImage = this.drawingList.filter(d => d.imgName == this.loadedImages[this.currentImageIndex].name);
@@ -287,6 +285,8 @@ class Sketch {
       p.pop(0);
     }
   }
+
+  //-------------------- Mode & Mode Control ---------------------//
 
   buttonInit = (p) => {
     let totalWidth = 0;

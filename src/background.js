@@ -67,7 +67,7 @@ async function createWindow() {
 
   win.webContents.once('dom-ready', () => {
     if (isDevelopment) {
-      win.webContents.openDevTools();
+      // win.webContents.openDevTools();
     }
   });
   
