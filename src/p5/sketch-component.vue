@@ -6,7 +6,7 @@
 
 <script>
 
-import { mapState } from 'vuex';
+import { mapState, mapMutations } from 'vuex';
 import { Sketch } from './main.js';
 
 export default {
@@ -21,6 +21,7 @@ export default {
   computed: mapState([
     'config',
     'appScale',
+    'persistent',
   ]),
   watch: {
     appScale(newValue) {
@@ -28,7 +29,7 @@ export default {
     }
   },
   mounted() {
-    this.sketch = new Sketch(this.config.sketch, this.appScale);
+    this.sketch = new Sketch(this.config.sketch, this.appScale, this.persistent.drawings, this.updateDrawingData);
   },
   unmounted() {
     this.sketch.remove();
@@ -36,6 +37,14 @@ export default {
   methods: {
     reset() {
       this.sketch.reset();
+    },
+    ...mapMutations([
+      'persistData'
+    ]),
+    updateDrawingData(dataToSave) {
+      let pd = this.persistent; 
+      pd.drawings= dataToSave;
+      this.persistData(pd);
     },
   }
 };

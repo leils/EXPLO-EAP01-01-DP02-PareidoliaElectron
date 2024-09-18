@@ -10,6 +10,7 @@ if (typeof (process) != 'undefined' && isElectron() == true && (process.env.NODE
 
 const canvasW = 1080;
 const canvasH = 1920;
+const maxDrawingsToShow = 5;
 
 /*--------------------- Pareidolia - P5 Start -------------------------*/
 // Background images 
@@ -72,12 +73,11 @@ const buttonDeadZoneHeight = 200;
 /*--------------------- END -------------------------*/
 
 class Sketch {
-  constructor(config, appScale) {
+  constructor(config, appScale, drawingData, updateDrawingData) {
     this.config = config;
     this.appScale = appScale;
     this.drawTextIn = 3;
     this.font;
-
 
     this.currentMode = Modes.DRAW;
 
@@ -90,7 +90,8 @@ class Sketch {
     this.buttonHeight;
     this.promptTextSize = 50; 
 
-    this.drawingList = [];
+    this.drawingList = drawingData;
+    this.updateDrawingData = updateDrawingData;
     this.strokeList = [];
     this.currentStroke = [];
 
@@ -109,7 +110,6 @@ class Sketch {
           this.loadedImages.push(i);
         }
 
-        this.fetchJSONDrawings();
 
         this.buttonInfo = [
           {
@@ -222,6 +222,9 @@ class Sketch {
   showModeSetup = (p) => {
     this.renderBackground(p);
     this.drawingsForCurrentImage = this.drawingList.filter(d => d.imgName == this.loadedImages[this.currentImageIndex].name);
+    if (this.drawingsForCurrentImage.length > maxDrawingsToShow) {
+      this.drawingsForCurrentImage = this.drawingsForCurrentImage.slice(-(maxDrawingsToShow)); // only show the 5 latest images
+    }
     this.currentImageDrawingIndex = 0;
     this.drawingOpacity = 0;
     this.drawingColor = p.color(this.drawingsForCurrentImage[this.currentImageDrawingIndex].colorStr);
@@ -348,22 +351,6 @@ class Sketch {
   }
 
   //-------------------- Strokes and Drawing ---------------------//
-  fetchJSONDrawings = () => {
-    console.log('fetching json?')
-    fetch("assets/drawings.json")
-    .then((res) => {
-        if (!res.ok) {
-            throw new Error
-                (`HTTP error! Status: ${res.status}`);
-        }
-        return res.json();
-    })
-    .then((data) => 
-          this.drawingList = data)
-    .catch((error) => 
-           console.error("Unable to fetch data:", error));
-  }
-
   submitDrawing = (p) => {
     if (this.strokeList.length > 0) {
       let d = new Drawing(this.loadedImages[this.currentImageIndex].name, this.currentImageIndex, colorList[this.currentColorIndex], this.strokeList);
@@ -375,6 +362,8 @@ class Sketch {
       this.changeColor(p);
       this.toggleMode(p);
     }
+
+    this.updateDrawingData(this.drawingList);
   }
 
   changeColor = (p) => {

@@ -7,25 +7,6 @@
       rel="stylesheet"
       :href="theme"
     >
-    <!-- <h1 class="yamlText">
-      {{ text('exhibit-title') }}
-    </h1> -->
-    <!-- <div class="module">
-      <p>The store's text function gets localized text from vuex. Text can include HTML tags.</p>
-      <p
-        class="yamlText"
-        v-html="text('try-this')"
-      />
-      <p>
-        You can specify a specific language so it <span class="yamlText">{{ text('always-spanish', 'es') }}</span>. If the requested text item is not found in text.yaml file, text function returns: <span
-          class="yamlText"
-          v-html="text('not-there')"
-        />
-      </p>
-    </div> -->
-    
-    <!-- <div><ArduinoComponent /></div> -->
-    <!-- <div><PersistentComponent /></div> -->
     <SketchComponent ref="sketch" />
   </div>
 </template>
@@ -33,19 +14,12 @@
 <script>
 import { mapMutations, mapState, mapGetters } from 'vuex';
 
-// the following line imports the arduino component using the ExploJSON protocol
-// examples for other ptotocols are available in the ./components/examples/arduino directory
-import ArduinoComponent from './components/examples/arduino/arduino-component-explo-json.vue';
-
-import PersistentComponent from './components/examples/persistent-data/persistent-component.vue';
-import SketchComponent from './components/examples/p5/sketch-component.vue';
+import SketchComponent from './p5/sketch-component.vue';
 import isElectron from 'is-electron';
 export default {
   name: 'App',
   components: {
     SketchComponent,
-    PersistentComponent,
-    ArduinoComponent,
   },
   data: function() { 
     return {
