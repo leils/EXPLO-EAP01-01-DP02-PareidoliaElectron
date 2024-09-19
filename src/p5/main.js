@@ -80,6 +80,7 @@ class Sketch {
     this.font;
 
     this.currentMode = Modes.DRAW;
+    this.timeEnteredShow = 0;
 
     this.loadedImages = [];
     this.currentImageIndex = 0;
@@ -198,12 +199,14 @@ class Sketch {
       for (var b of this.allButtons) { b.hide(); } // hide all buttons
       this.currentMode = Modes.SUBMIT;
       this.renderBackground(p);
+      this.timeEnteredShow = Date.now();
 
       setTimeout(() => { this.showModeSetup(p); }, 2000); //goes to ShowMode in 2 seconds
 
-      // Set a timeout to return to draw mode after 30 seconds
+      // Set a timeout to return to draw mode after 30 seconds of Show 
       setTimeout(() => {
-        if (this.currentMode == Modes.SHOW) {
+        let nowTime = Date.now();
+        if (this.currentMode == Modes.SHOW && ((nowTime - this.timeEnteredShow) >= 30000)) {
           this.toggleMode(p);
         }
       }, 30000)
