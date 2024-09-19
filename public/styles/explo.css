@@ -192,7 +192,7 @@ body {
   /* cursor: none; */
 }
 
-button {
+button, .undoButton , .nextButton{
   font-size: 30px;
   font-weight: 600;
   border: none;
