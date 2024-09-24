@@ -289,14 +289,14 @@ class Sketch {
     let submitButton = p.createButton("Submit Your Drawing");
     submitButton.mousePressed(() => { this.submitDrawing(p)} );
     submitButton.class('submitButton');
-    submitButton.position((canvasW-submitButton.width)/2, this.buttonHeight);
+    submitButton.position((canvasW-submitButton.width)/2 - 40, this.buttonHeight);
     this.allButtons.push(submitButton);
 
 
     // let nextButton = p.createImg("assets/arrow-forward.png");
-    let nextButton = p.createButton("Next Image");
+    let nextButton = p.createButton("New Image");
     nextButton.mousePressed(() => {this.nextImage(p)} );
-    nextButton.position(canvasW-260, this.buttonHeight);
+    nextButton.position(canvasW-300, this.buttonHeight);
     nextButton.class("nextButton");
     this.allButtons.push(nextButton);
   }

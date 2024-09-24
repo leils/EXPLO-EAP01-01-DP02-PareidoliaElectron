@@ -205,14 +205,26 @@ button, .undoButton , .nextButton{
 }
 
 .undoButton::before { 
-  content: url(../assets/undo.png);
+  background-image: url(../assets/undo-larger.png);
+  background-size: 40px 40px;
+  margin-right:4px;
+  display: inline-block;
+  width: 40px;
+  height: 34px;
+  content: "";
 }
 
 .nextButton::after {
-  content: url(../assets/arrow-forward.png);
+  background-image: url(../assets/arrow-forward.png);
+  background-size: 46px 43px;
+  display: inline-block;
+  width: 46px;
+  height: 34px;
+  content: "";
 }
 
 .submitButton {
   background-color: yellow;
   font-weight: 800;
+  height:80px;
 }
