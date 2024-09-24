@@ -279,7 +279,7 @@ class Sketch {
   buttonInit = (p) => {
     let totalWidth = 0;
 
-    let undoButton = p.createImg("assets/undo.png");
+    let undoButton = p.createButton("Undo");
     undoButton.mousePressed(()=>{this.undo(p)});
     undoButton.class("undoButton");
     undoButton.position(60, this.buttonHeight);
@@ -293,9 +293,10 @@ class Sketch {
     this.allButtons.push(submitButton);
 
 
-    let nextButton = p.createImg("assets/arrow-forward.png");
+    // let nextButton = p.createImg("assets/arrow-forward.png");
+    let nextButton = p.createButton("Next Image");
     nextButton.mousePressed(() => {this.nextImage(p)} );
-    nextButton.position(canvasW-130, this.buttonHeight);
+    nextButton.position(canvasW-260, this.buttonHeight);
     nextButton.class("nextButton");
     this.allButtons.push(nextButton);
   }

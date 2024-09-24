@@ -204,6 +204,14 @@ button, .undoButton , .nextButton{
   cursor: none;
 }
 
+.undoButton::before { 
+  content: url(../assets/undo.png);
+}
+
+.nextButton::after {
+  content: url(../assets/arrow-forward.png);
+}
+
 .submitButton {
   background-color: yellow;
   font-weight: 800;
