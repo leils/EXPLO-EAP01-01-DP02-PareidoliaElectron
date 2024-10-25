@@ -79,6 +79,7 @@ class Sketch {
     this.drawTextIn = 3;
     this.font;
 
+    this.adminMode = false;
     this.currentMode = Modes.DRAW;
     this.timeEnteredShow = 0;
 
@@ -169,6 +170,30 @@ class Sketch {
           p.line(p.pmouseX / this.appScale, p.pmouseY / this.appScale, p.mouseX / this.appScale, p.mouseY / this.appScale);
         this.currentStroke.push({ x: p.mouseX/this.appScale, y: p.mouseY/this.appScale });
       }
+
+      p.keyPressed = () => {
+        console.log('keypressed registered');
+        if (p.key == "m") {
+          console.log("mode change via keyboard");
+          this.adminMode = true;
+          this.toggleMode(p);
+        }
+        else if (p.key == "e") {
+          console.log("escape adminMode");
+          this.adminMode = false;
+        }
+
+        if (this.adminMode && this.currentMode == Modes.SHOW) {
+          if (p.keyCode === p.LEFT_ARROW) {
+            console.log('prev drawing via arrow');
+            this.prevDrawing(p);
+          }
+          if (p.keyCode === p.RIGHT_ARROW) {
+            console.log('next drawing via arrow');
+            this.nextDrawing(p);
+          }
+        }
+      }
     };
 
     this.p5SketchObject = new p5(s, 'sketch');
@@ -183,15 +208,19 @@ class Sketch {
       this.renderBackground(p);
       this.timeEnteredShow = Date.now();
 
-      setTimeout(() => { this.showModeSetup(p); }, 2000); //goes to ShowMode in 2 seconds
-
       // Set a timeout to return to draw mode after 30 seconds of Show 
-      setTimeout(() => {
-        let nowTime = Date.now();
-        if (this.currentMode == Modes.SHOW && ((nowTime - this.timeEnteredShow) >= 30000)) {
-          this.toggleMode(p);
-        }
-      }, 30000)
+      if (!this.adminMode) {
+        setTimeout(() => { this.showModeSetup(p); }, 2000); //goes to ShowMode in 2 seconds
+
+        setTimeout(() => {
+          let nowTime = Date.now();
+          if (this.currentMode == Modes.SHOW && ((nowTime - this.timeEnteredShow) >= 30000)) {
+            this.toggleMode(p);
+          }
+        }, 30000)
+      } else {
+        this.showModeSetup(p);
+      }
 
     } else if (this.currentMode == Modes.SHOW) { // show mode -> draw mode 
       this.nextImage(p); // Move to next image after show
@@ -207,11 +236,16 @@ class Sketch {
   showModeSetup = (p) => {
     this.renderBackground(p);
     this.drawingsForCurrentImage = this.drawingList.filter(d => d.imgName == this.loadedImages[this.currentImageIndex].name);
-    if (this.drawingsForCurrentImage.length > maxDrawingsToShow) {
-      this.drawingsForCurrentImage = this.drawingsForCurrentImage.slice(-(maxDrawingsToShow)); // only show the 5 latest images
-    }
     this.currentImageDrawingIndex = 0;
-    this.drawingOpacity = 0;
+
+    if (this.adminMode) {
+      this.drawingOpacity = 255;
+    } else {
+      this.drawingOpacity = 0;
+      if (this.drawingsForCurrentImage.length > maxDrawingsToShow) {
+        this.drawingsForCurrentImage = this.drawingsForCurrentImage.slice(-(maxDrawingsToShow)); // only show the 5 latest images
+      }
+    }
     this.drawingColor = p.color(this.drawingsForCurrentImage[this.currentImageDrawingIndex].colorStr);
   
     this.currentMode = Modes.SHOW;
@@ -232,17 +266,24 @@ class Sketch {
     p.stroke(this.drawingColor);
     this.drawStrokes(p, drawing.strokes);
     p.pop();
-  
-    if (this.drawingOpacity < 255) {
-      this.drawingOpacity+=2;
-    } else {
-      this.nextDrawing(p);
-      this.drawingOpacity = 0;
+
+    if (!this.adminMode) {
+      if (this.drawingOpacity < 255) {
+        this.drawingOpacity+=2;
+      } else {
+        this.nextDrawing(p);
+        this.drawingOpacity = 0;
+      }
     }
   }
 
   nextDrawing = (p) => {
     this.currentImageDrawingIndex = this.currentImageDrawingIndex < this.drawingsForCurrentImage.length - 1 ? this.currentImageDrawingIndex + 1 : 0;
+    this.drawingColor = p.color(this.drawingsForCurrentImage[this.currentImageDrawingIndex].colorStr);
+  }
+
+  prevDrawing = (p) => {
+    this.currentImageDrawingIndex = this.currentImageDrawingIndex > 0 ? this.currentImageDrawingIndex - 1 : this.drawingsForCurrentImage.length - 1;
     this.drawingColor = p.color(this.drawingsForCurrentImage[this.currentImageDrawingIndex].colorStr);
   }
 
