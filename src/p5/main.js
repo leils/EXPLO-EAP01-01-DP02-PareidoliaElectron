@@ -83,6 +83,7 @@ class Sketch {
     this.appScale = appScale;
     this.font;
 
+    this.adminMode = false;
     this.currentMode = Modes.DRAW;
     this.timeEnteredShow = 0;
 
@@ -177,6 +178,30 @@ class Sketch {
           )
         }
       }
+
+      p.keyPressed = () => {
+        console.log('keypressed registered');
+        if (p.key == "m") {
+          console.log("mode change via keyboard");
+          this.adminMode = true;
+          this.toggleMode(p);
+        }
+        else if (p.key == "e") {
+          console.log("escape adminMode");
+          this.adminMode = false;
+        }
+
+        if (this.adminMode && this.currentMode == Modes.SHOW) {
+          if (p.keyCode === p.LEFT_ARROW) {
+            console.log('prev drawing via arrow');
+            this.prevDrawing();
+          }
+          if (p.keyCode === p.RIGHT_ARROW) {
+            console.log('next drawing via arrow');
+            this.nextDrawing();
+          }
+        }
+      }
     };
 
     this.p5SketchObject = new p5(s, 'sketch');
@@ -192,15 +217,19 @@ class Sketch {
       this.renderBackground();
       this.timeEnteredShow = Date.now();
 
-      setTimeout(() => { this.showModeSetup(); }, 2000); //goes to ShowMode in 2 seconds
-
       // Set a timeout to return to draw mode after 30 seconds of Show 
-      setTimeout(() => {
-        let nowTime = Date.now();
-        if (this.currentMode == Modes.SHOW && ((nowTime - this.timeEnteredShow) >= showModeLength)) {
-          this.toggleMode();
-        }
-      }, showModeLength)
+      if (!this.adminMode) {
+        setTimeout(() => { this.showModeSetup(); }, 2000); //goes to ShowMode in 2 seconds
+
+        setTimeout(() => {
+          let nowTime = Date.now();
+          if (this.currentMode == Modes.SHOW && ((nowTime - this.timeEnteredShow) >= 30000)) {
+            this.toggleMode();
+          }
+        }, showModeLength)
+      } else {
+        this.showModeSetup();
+      }
 
     } else if (this.currentMode == Modes.SHOW) { // show mode -> draw mode 
       this.vueContainer.drawMode();
@@ -216,14 +245,17 @@ class Sketch {
   showModeSetup = () => {
     // Get a max of maxDrawingsToShow previous drawings to show during show mode 
     this.drawingsForCurrentImage = this.drawingList.filter(d => d.imgName == this.loadedImages[this.currentImageIndex].name);
-    if (this.drawingsForCurrentImage.length > maxDrawingsToShow) {
-      this.drawingsForCurrentImage = this.drawingsForCurrentImage.slice(-(maxDrawingsToShow)); // only show the 5 latest images
-    }
-
-    // Prep to draw first drawing at 0 opacity 
     this.currentImageDrawingIndex = 0;
-    this.drawingOpacity = 0;
-    this.drawingColor = this.p5SketchObject.color(this.drawingsForCurrentImage[this.currentImageDrawingIndex].colorStr);
+
+    if (this.adminMode) {
+      this.drawingOpacity = 255;
+    } else {
+      this.drawingOpacity = 0;
+      if (this.drawingsForCurrentImage.length > maxDrawingsToShow) {
+        this.drawingsForCurrentImage = this.drawingsForCurrentImage.slice(-(maxDrawingsToShow)); // only show the 5 latest images
+      }
+    }
+    this.drawingColor = p.color(this.drawingsForCurrentImage[this.currentImageDrawingIndex].colorStr);
   
     this.currentMode = Modes.SHOW;
   }
@@ -247,18 +279,24 @@ class Sketch {
     p.stroke(this.drawingColor);
     this.drawStrokes(drawing.strokes);
     p.pop();
-  
-    // Increase opacity until max, then move to next drawing
-    if (this.drawingOpacity < 255) {
-      this.drawingOpacity+=2;
-    } else {
-      this.nextDrawing();
-      this.drawingOpacity = 0;
+
+    if (!this.adminMode) {
+      if (this.drawingOpacity < 255) {
+        this.drawingOpacity+=2;
+      } else {
+        this.nextDrawing(p);
+        this.drawingOpacity = 0;
+      }
     }
   }
 
   nextDrawing = () => {
     this.currentImageDrawingIndex = this.currentImageDrawingIndex < this.drawingsForCurrentImage.length - 1 ? this.currentImageDrawingIndex + 1 : 0;
+    this.drawingColor = this.p5SketchObject.color(this.drawingsForCurrentImage[this.currentImageDrawingIndex].colorStr);
+  }
+
+  prevDrawing = () => {
+    this.currentImageDrawingIndex = this.currentImageDrawingIndex > 0 ? this.currentImageDrawingIndex - 1 : this.drawingsForCurrentImage.length - 1;
     this.drawingColor = this.p5SketchObject.color(this.drawingsForCurrentImage[this.currentImageDrawingIndex].colorStr);
   }
 
