@@ -85,7 +85,6 @@ class Sketch {
     this.loadedImages = [];
     this.currentImageIndex = 0;
     this.currentColorIndex = 0;
-    this.buttonInfo;
 
     this.allButtons = [];
     this.buttonHeight;
@@ -110,23 +109,6 @@ class Sketch {
           i.loadedImage = p.loadImage(i.path);
           this.loadedImages.push(i);
         }
-
-
-        this.buttonInfo = [
-          {
-            label: "Undo",
-            clickFunct: () => { this.undo(p); }
-          },
-          {
-            label: "Submit Your Drawing",
-            clickFunct: () => {this.submitDrawing(p)},
-            className: "submitButton"
-          },
-          {
-            label: "Next Image",
-            clickFunct: () => { this.nextImage(p) }
-          }
-        ]
       };
 
       p.setup = () => {
@@ -297,27 +279,26 @@ class Sketch {
   buttonInit = (p) => {
     let totalWidth = 0;
 
-    //initialize all buttons, but don't place them yet
-    for (var i = 0; i < this.buttonInfo.length; i++) {
-      let bInfo = this.buttonInfo[i];
-      let newButton = p.createButton(bInfo.label);
-      if (bInfo.hasOwnProperty("className")) {
-        newButton.class(bInfo.className);
-      }
-      newButton.mousePressed(bInfo.clickFunct);
+    let undoButton = p.createButton("Undo");
+    undoButton.mousePressed(()=>{this.undo(p)});
+    undoButton.class("undoButton");
+    undoButton.position(60, this.buttonHeight);
+    this.allButtons.push(undoButton);
 
-      totalWidth += newButton.width;
-      this.allButtons.push(newButton);
-    }
 
-    // centering the buttons on-screen
-    totalWidth += (this.allButtons.length - 1) * buttonOffset;
-    let spaceOffset = (canvasW - totalWidth) / 2;
+    let submitButton = p.createButton("Submit Your Drawing");
+    submitButton.mousePressed(() => { this.submitDrawing(p)} );
+    submitButton.class('submitButton');
+    submitButton.position((canvasW-submitButton.width)/2 - 40, this.buttonHeight);
+    this.allButtons.push(submitButton);
 
-    for (var b of this.allButtons) {
-      b.position(spaceOffset, this.buttonHeight);
-      spaceOffset += (buttonOffset + b.width);
-    }
+
+    // let nextButton = p.createImg("assets/arrow-forward.png");
+    let nextButton = p.createButton("New Image");
+    nextButton.mousePressed(() => {this.nextImage(p)} );
+    nextButton.position(canvasW-300, this.buttonHeight);
+    nextButton.class("nextButton");
+    this.allButtons.push(nextButton);
   }
 
   drawPrompt = (p) => {
