@@ -1,5 +1,6 @@
 import p5 from 'p5';
 import isElectron from 'is-electron';
+import { v4 as uuidv4 } from 'uuid';
 
 var assetsURI;
 if (typeof (process) != 'undefined' && isElectron() == true && (process.env.NODE_ENV != 'development')) {
@@ -46,6 +47,7 @@ const afterSubmitText = "Great! Let's see what some other people drew.";
 */
 class Drawing {
   constructor(imgName, imgIndex, colorStr, strokes) {
+    this.id = uuidv4();
     this.imgName = imgName;
     this.imgIndex = imgIndex;
     this.colorStr = colorStr;
