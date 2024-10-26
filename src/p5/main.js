@@ -194,6 +194,10 @@ class Sketch {
             console.log('next drawing via arrow');
             this.nextDrawing(p);
           }
+          if (p.key == "d") {
+            console.log("d delete");
+            // TODO: delete drawing
+          }
         }
       }
     };
