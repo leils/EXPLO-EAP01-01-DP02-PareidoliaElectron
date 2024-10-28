@@ -195,13 +195,13 @@ class Sketch {
             console.log('prev drawing via arrow');
             this.prevDrawing();
           }
-          if (p.keyCode === p.RIGHT_ARROW) {
+          else if (p.keyCode === p.RIGHT_ARROW) {
             console.log('next drawing via arrow');
             this.nextDrawing();
           }
-          if (p.key == "d") {
+          else if (p.key == "d") {
             console.log("d delete");
-            // TODO: delete drawing
+            this.deleteDrawing();
           }
         }
       }
@@ -304,6 +304,25 @@ class Sketch {
   prevDrawing = () => {
     this.currentImageDrawingIndex = this.currentImageDrawingIndex > 0 ? this.currentImageDrawingIndex - 1 : this.drawingsForCurrentImage.length - 1;
     this.drawingColor = this.p5SketchObject.color(this.drawingsForCurrentImage[this.currentImageDrawingIndex].colorStr);
+  }
+
+  deleteDrawing = () => {
+    let targetId = this.drawingsForCurrentImage[this.currentImageDrawingIndex].id;
+    let targetIndex= this.drawingList.findIndex((d) => d.id == targetId);
+
+    if (targetIndex < 0) {
+      console.log('Target not found during delete');
+      return;
+    } else {
+      this.drawingList.splice(targetIndex, 1);
+      this.drawingsForCurrentImage.splice(this.currentImageDrawingIndex); // need to update our local copy of filtered images
+
+      if (this.currentImageDrawingIndex >= this.drawingsForCurrentImage.length) { // If we deleted the last drawing
+        this.currentImageDrawingIndex -= 1;
+      }
+
+      this.updateDrawingData(this.drawingList);
+    }
   }
 
   handleFlashAnimation = () => {
