@@ -183,12 +183,11 @@ class Sketch {
         console.log('keypressed registered');
         if (p.key == "m") {
           console.log("mode change via keyboard");
-          this.adminMode = true;
+          if (this.currentMode == Modes.DRAW) {
+            this.adminMode = true;
+          }
+
           this.toggleMode(p);
-        }
-        else if (p.key == "e") {
-          console.log("escape adminMode");
-          this.adminMode = false;
         }
 
         if (this.adminMode && this.currentMode == Modes.SHOW) {
@@ -236,6 +235,9 @@ class Sketch {
       }
 
     } else if (this.currentMode == Modes.SHOW) { // show mode -> draw mode 
+      if (this.adminMode) {
+        this.adminMode = false;
+      }
       this.vueContainer.drawMode();
       this.nextImage(); // Move to next image after show
       this.currentMode = Modes.DRAW
