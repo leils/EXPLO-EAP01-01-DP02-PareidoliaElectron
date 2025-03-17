@@ -123,24 +123,24 @@ class Sketch {
         p.stroke(colorList[this.currentColorIndex]);
         p.background('blue');
 
-        this.renderBackground(p);
-        this.buttonInit(p);
+        this.renderBackground();
+        this.buttonInit();
       };
 
       p.draw = () => {
         if (this.currentMode == Modes.SHOW) {
-          this.renderShowModeFrame(p);
+          this.renderShowModeFrame();
         }
-        this.handleFlashAnimation(p);
+        this.handleFlashAnimation();
         if (this.currentMode != Modes.SUBMIT) {
-          this.drawPrompt(p);
+          this.drawPrompt();
         }
       };
 
       p.reset = () => {
         p.clear();
-        this.nextImage(p);
-        this.resetCanvas(p);
+        this.nextImage();
+        this.resetCanvas();
       };
 
       p.mouseReleased = () => {
@@ -162,12 +162,12 @@ class Sketch {
         p.pmouseY = p.mouseY/this.appScale;
 
         if (this.currentMode == Modes.SHOW) {
-          this.toggleMode(p);
+          this.toggleMode();
         }
       }
 
       p.mouseDragged = () => {
-        if (this.currentMode == Modes.DRAW && this.pointerLocationIsValid(p))
+        if (this.currentMode == Modes.DRAW && this.pointerLocationIsValid())
           p.line(p.pmouseX / this.appScale, p.pmouseY / this.appScale, p.mouseX / this.appScale, p.mouseY / this.appScale);
         this.currentStroke.push({ x: p.mouseX/this.appScale, y: p.mouseY/this.appScale });
       }
@@ -178,25 +178,25 @@ class Sketch {
 
   //-------------------- Mode & Mode Control ---------------------//
 
-  toggleMode = (p) => {
+  toggleMode = () => {
     if (this.currentMode == Modes.DRAW) { // draw -> submit -> show 
       for (var b of this.allButtons) { b.hide(); } // hide all buttons
       this.currentMode = Modes.SUBMIT;
-      this.renderBackground(p);
+      this.renderBackground();
       this.timeEnteredShow = Date.now();
 
-      setTimeout(() => { this.showModeSetup(p); }, 2000); //goes to ShowMode in 2 seconds
+      setTimeout(() => { this.showModeSetup(); }, 2000); //goes to ShowMode in 2 seconds
 
       // Set a timeout to return to draw mode after 30 seconds of Show 
       setTimeout(() => {
         let nowTime = Date.now();
         if (this.currentMode == Modes.SHOW && ((nowTime - this.timeEnteredShow) >= 30000)) {
-          this.toggleMode(p);
+          this.toggleMode();
         }
       }, 30000)
 
     } else if (this.currentMode == Modes.SHOW) { // show mode -> draw mode 
-      this.nextImage(p); // Move to next image after show
+      this.nextImage(); // Move to next image after show
       for (var b of this.allButtons) { b.show(); } // show all buttons
       this.currentMode = Modes.DRAW
 
@@ -206,15 +206,15 @@ class Sketch {
     }
   }
 
-  showModeSetup = (p) => {
-    this.renderBackground(p);
+  showModeSetup = () => {
+    this.renderBackground();
     this.drawingsForCurrentImage = this.drawingList.filter(d => d.imgName == this.loadedImages[this.currentImageIndex].name);
     if (this.drawingsForCurrentImage.length > maxDrawingsToShow) {
       this.drawingsForCurrentImage = this.drawingsForCurrentImage.slice(-(maxDrawingsToShow)); // only show the 5 latest images
     }
     this.currentImageDrawingIndex = 0;
     this.drawingOpacity = 0;
-    this.drawingColor = p.color(this.drawingsForCurrentImage[this.currentImageDrawingIndex].colorStr);
+    this.drawingColor = this.p5SketchObject.color(this.drawingsForCurrentImage[this.currentImageDrawingIndex].colorStr);
   
     this.currentMode = Modes.SHOW;
   }
@@ -225,34 +225,38 @@ class Sketch {
     this.drawingsForCurrentImage = [];
   }
 
-  renderShowModeFrame = (p) => {
-    this.renderBackground(p);
+  renderShowModeFrame = () => {
+    const p = this.p5SketchObject;
+
+    this.renderBackground();
   
     p.push();
     let drawing = this.drawingsForCurrentImage[this.currentImageDrawingIndex];
     this.drawingColor.setAlpha(this.drawingOpacity);
     p.stroke(this.drawingColor);
-    this.drawStrokes(p, drawing.strokes);
+    this.drawStrokes(drawing.strokes);
     p.pop();
   
     if (this.drawingOpacity < 255) {
       this.drawingOpacity+=2;
     } else {
-      this.nextDrawing(p);
+      this.nextDrawing();
       this.drawingOpacity = 0;
     }
   }
 
-  nextDrawing = (p) => {
+  nextDrawing = () => {
     this.currentImageDrawingIndex = this.currentImageDrawingIndex < this.drawingsForCurrentImage.length - 1 ? this.currentImageDrawingIndex + 1 : 0;
-    this.drawingColor = p.color(this.drawingsForCurrentImage[this.currentImageDrawingIndex].colorStr);
+    this.drawingColor = this.p5SketchObject.color(this.drawingsForCurrentImage[this.currentImageDrawingIndex].colorStr);
   }
 
-  handleFlashAnimation = (p) => {
+  handleFlashAnimation = () => {
+    const p = this.p5SketchObject;
+
     if (this.flashOpacity > 0) {
       p.push();
       // Rendering submit text
-      this.renderBackground(p);
+      this.renderBackground();
       p.noStroke();
       p.fill('black');
       p.rectMode(p.CENTER);
@@ -278,18 +282,19 @@ class Sketch {
 
   //-------------------- Mode & Mode Control ---------------------//
 
-  buttonInit = (p) => {
+  buttonInit = () => {
+    const p = this.p5SketchObject;
     let totalWidth = 0;
 
     let undoButton = p.createButton("Undo");
-    undoButton.mousePressed(()=>{this.undo(p)});
+    undoButton.mousePressed(()=>{this.undo()});
     undoButton.class("undoButton");
     undoButton.position(60, this.buttonHeight);
     this.allButtons.push(undoButton);
 
 
     let submitButton = p.createButton("Submit Your Drawing");
-    submitButton.mousePressed(() => { this.submitDrawing(p)} );
+    submitButton.mousePressed(() => { this.submitDrawing()} );
     submitButton.class('submitButton');
     submitButton.position((canvasW-submitButton.width)/2 - 40, this.buttonHeight);
     this.allButtons.push(submitButton);
@@ -297,13 +302,14 @@ class Sketch {
 
     // let nextButton = p.createImg("assets/arrow-forward.png");
     let nextButton = p.createButton("New Image");
-    nextButton.mousePressed(() => {this.nextImage(p)} );
+    nextButton.mousePressed(() => {this.nextImage()} );
     nextButton.position(canvasW-300, this.buttonHeight);
     nextButton.class("nextButton");
     this.allButtons.push(nextButton);
   }
 
-  drawPrompt = (p) => {
+  drawPrompt = () => {
+    const p = this.p5SketchObject;
     // TODO incorporate submit mode into prompt drawing for clarity
     p.push();
     p.fill("black");
@@ -322,39 +328,41 @@ class Sketch {
     p.pop();
   }
 
-  nextImage = (p) => {
+  nextImage = () => {
     this.currentImageIndex = this.currentImageIndex >= this.loadedImages.length - 1 ? 0 : this.currentImageIndex + 1;
-    this.resetCanvas(p); // also remove the current drawings 
+    this.resetCanvas(); // also remove the current drawings 
   }
 
-  renderBackground = (p) => {
-    p.image(this.loadedImages[this.currentImageIndex].loadedImage, 0, 0, canvasW, canvasH);
+  renderBackground = () => {
+    this.p5SketchObject.image(this.loadedImages[this.currentImageIndex].loadedImage, 0, 0, canvasW, canvasH);
   }
 
-  resetCanvas = (p) => {
+  resetCanvas = () => {
     this.strokeList = [];
-    this.renderBackground(p);
+    this.renderBackground();
   }
 
   //-------------------- Strokes and Drawing ---------------------//
-  submitDrawing = (p) => {
+  submitDrawing = () => {
+    const p = this.p5SketchObject;
+
     if (this.strokeList.length > 0) {
       let d = new Drawing(this.loadedImages[this.currentImageIndex].name, this.currentImageIndex, colorList[this.currentColorIndex], this.strokeList);
       this.drawingList.push(d);
   
       this.flashOpacity = 255;
       this.strokeList = [];
-      this.renderBackground(p);
-      this.changeColor(p);
-      this.toggleMode(p);
+      this.renderBackground();
+      this.changeColor();
+      this.toggleMode();
     }
 
     this.updateDrawingData(this.drawingList);
   }
 
-  changeColor = (p) => {
+  changeColor = () => {
     this.currentColorIndex = this.currentColorIndex >= colorList.length - 1 ? 0 : this.currentColorIndex + 1;
-    p.stroke(colorList[this.currentColorIndex]);
+    this.p5SketchObject.stroke(colorList[this.currentColorIndex]);
   }
 
   endStroke = () => {
@@ -367,7 +375,8 @@ class Sketch {
     this.currentStroke = [];
   }
 
-  drawStrokes = (p, slist) => {
+  drawStrokes = (slist) => {
+    const p = this.p5SketchObject;
     for (var stroke of slist) {
       if (stroke.length > 1) {
         for (var i = 1; i < stroke.length; i++) {
@@ -379,7 +388,8 @@ class Sketch {
     }
   }
 
-  pointerLocationIsValid = (p) => {
+  pointerLocationIsValid = () => {
+    const p = this.p5SketchObject;
     let d = p.dist(p.pmouseX, p.pmouseY, p.mouseX, p.mouseY);
     if (d > 100 || p.mouseY / this.appScale > (1920 - buttonDeadZoneHeight)) {
       return false;
@@ -388,11 +398,11 @@ class Sketch {
     }
   }
 
-  undo = (p) => {
+  undo = () => {
     if (this.strokeList.length > 0) {
       this.strokeList.pop();
-      this.renderBackground(p);
-      this.drawStrokes(p, this.strokeList);
+      this.renderBackground();
+      this.drawStrokes(this.strokeList);
     }
   }
 
