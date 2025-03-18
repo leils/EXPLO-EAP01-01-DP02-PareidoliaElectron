@@ -46,6 +46,15 @@ export default {
       pd.drawings= dataToSave;
       this.persistData(pd);
     },
+    nextImage() { 
+      this.sketch.nextImage();
+    },
+    undo() {
+      this.sketch.undo();
+    },
+    submit() {
+      this.sketch.submit();
+    }
   }
 };
 </script>

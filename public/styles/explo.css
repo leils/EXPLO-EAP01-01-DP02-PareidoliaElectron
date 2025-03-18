@@ -183,7 +183,7 @@ body {
   font-family: "Explo";
   font-weight: 300;
   /* user-select: none; */
-  cursor:none;
+  /* cursor:none; */
 }
 
 #app {
@@ -201,7 +201,7 @@ button, .undoButton , .nextButton{
   color: black;
   background:white;
   user-select: none;
-  cursor: none;
+  /* cursor: none; */
 }
 
 .undoButton::before { 

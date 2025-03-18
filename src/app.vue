@@ -7,6 +7,12 @@
       rel="stylesheet"
       :href="theme"
     >
+
+    <div class="buttonBar">
+      <button class="eapbutton" id="undoButton" type="button">undo</button>
+      <button class="eapbutton" id="submitButton" type="button">submit</button>
+      <button class="eapbutton" id="nextImageButton" type="button">nextImage</button>
+    </div>
     <SketchComponent ref="sketch" />
   </div>
 </template>
@@ -71,6 +77,13 @@ export default {
       }
     });
 
+    const undobutton = document.getElementById('undoButton');
+    const submitbutton = document.getElementById('submitButton');
+    const nextbutton = document.getElementById('nextImageButton');
+    
+    undobutton.onclick = this.undo;
+    submitbutton.onclick = this.submit;
+    nextbutton.onclick = this.nextImage;
     
     if (isElectron()) {
       // subscribe to the reset event defined in the config.json file
@@ -93,6 +106,15 @@ export default {
       this.idleTimeout = setTimeout(() => {
         this.reset();
       }, this.config.template.idle);
+    },
+    nextImage() {
+      this.$refs.sketch.nextImage();
+    },
+    undo() {
+      this.$refs.sketch.undo();
+    },
+    submit() {
+      this.$refs.sketch.submit();
     }
   }
 };
