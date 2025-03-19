@@ -7,13 +7,13 @@
       rel="stylesheet"
       :href="theme"
     >
+    <SketchComponent ref="sketch" />
 
     <div class="buttonBar">
-      <button class="eapbutton" id="undoButton" type="button">undo</button>
-      <button class="eapbutton" id="submitButton" type="button">submit</button>
-      <button class="eapbutton" id="nextImageButton" type="button">nextImage</button>
+      <button class="eapbutton" id="undoButton" type="button">Undo</button>
+      <button class="eapbutton" id="submitButton" type="button">Submit</button>
+      <button class="eapbutton" id="nextImageButton" type="button">Next Image</button>
     </div>
-    <SketchComponent ref="sketch" />
   </div>
 </template>
 

@@ -53,7 +53,7 @@ export default {
       this.sketch.undo();
     },
     submit() {
-      this.sketch.submit();
+      this.sketch.submitDrawing();
     }
   }
 };

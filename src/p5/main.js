@@ -124,7 +124,6 @@ class Sketch {
         p.background('blue');
 
         this.renderBackground();
-        this.buttonInit();
       };
 
       p.draw = () => {
@@ -180,7 +179,6 @@ class Sketch {
 
   toggleMode = () => {
     if (this.currentMode == Modes.DRAW) { // draw -> submit -> show 
-      for (var b of this.allButtons) { b.hide(); } // hide all buttons
       this.currentMode = Modes.SUBMIT;
       this.renderBackground();
       this.timeEnteredShow = Date.now();
@@ -197,7 +195,6 @@ class Sketch {
 
     } else if (this.currentMode == Modes.SHOW) { // show mode -> draw mode 
       this.nextImage(); // Move to next image after show
-      for (var b of this.allButtons) { b.show(); } // show all buttons
       this.currentMode = Modes.DRAW
 
       this.showModeTeardown();
@@ -281,33 +278,6 @@ class Sketch {
   }
 
   //-------------------- Mode & Mode Control ---------------------//
-
-  buttonInit = () => {
-    const p = this.p5SketchObject;
-    let totalWidth = 0;
-
-    let undoButton = p.createButton("Undo");
-    undoButton.mousePressed(()=>{this.undo()});
-    undoButton.class("undoButton");
-    undoButton.position(60, this.buttonHeight);
-    this.allButtons.push(undoButton);
-
-
-    let submitButton = p.createButton("Submit Your Drawing");
-    submitButton.mousePressed(() => { this.submitDrawing()} );
-    submitButton.class('submitButton');
-    submitButton.position((canvasW-submitButton.width)/2 - 40, this.buttonHeight);
-    this.allButtons.push(submitButton);
-
-
-    // let nextButton = p.createImg("assets/arrow-forward.png");
-    let nextButton = p.createButton("New Image");
-    nextButton.mousePressed(() => {this.nextImage()} );
-    nextButton.position(canvasW-300, this.buttonHeight);
-    nextButton.class("nextButton");
-    this.allButtons.push(nextButton);
-  }
-
   drawPrompt = () => {
     const p = this.p5SketchObject;
     // TODO incorporate submit mode into prompt drawing for clarity

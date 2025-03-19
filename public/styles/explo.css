@@ -228,3 +228,28 @@ button, .undoButton , .nextButton{
   font-weight: 800;
   height:80px;
 }
+
+.buttonBar {
+  position: fixed;
+  bottom: 50px; 
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  justify-content: space-evenly;
+  width: 80%;
+  
+}
+
+.eapbutton {
+display: flex;
+align-items: center;
+padding: 25px 35px;
+height: 73px;
+
+background: #2CAA61;
+border-radius: 20px;
+
+letter-spacing: 0.005em;
+color: #FFFFFF;
+
+}
