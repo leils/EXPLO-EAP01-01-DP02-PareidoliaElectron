@@ -11,6 +11,7 @@ import { Sketch } from './main.js';
 
 export default {
   name: 'SketchComponent',
+  emits: ['showMode', 'drawMode'],
   props: {
   },
   data: function() {
@@ -29,7 +30,14 @@ export default {
     }
   },
   mounted() {
-    this.sketch = new Sketch(this.config.sketch, this.appScale, this.persistent.drawings, this.updateDrawingData);
+    this.sketch = new Sketch(
+      this.config.sketch, 
+      this.appScale, 
+      this.persistent.drawings, 
+      this.updateDrawingData,
+      this.enteredShowMode,
+      this.enteredDrawMode
+    );
   },
   unmounted() {
     this.sketch.remove();
@@ -54,6 +62,12 @@ export default {
     },
     submit() {
       this.sketch.submitDrawing();
+    },
+    enteredShowMode() {
+      this.$emit("showMode");
+    },
+    enteredDrawMode() {
+      this.$emit("drawMode");
     }
   }
 };

@@ -75,7 +75,14 @@ const buttonDeadZoneHeight = 200;
 /*--------------------- END -------------------------*/
 
 class Sketch {
-  constructor(config, appScale, drawingData, updateDrawingData) {
+  constructor(
+    config, 
+    appScale, 
+    drawingData, 
+    updateDrawingData, 
+    enteredShowModeCallback, 
+    enteredDrawModeCallback) {
+
     this.config = config;
     this.appScale = appScale;
     this.drawTextIn = 3;
@@ -94,6 +101,8 @@ class Sketch {
 
     this.drawingList = drawingData;
     this.updateDrawingData = updateDrawingData;
+    this.enteredShowModeCallback = enteredShowModeCallback;
+    this.enteredDrawModeCallback = enteredDrawModeCallback;
     this.strokeList = [];
     this.currentStroke = [];
 
@@ -179,6 +188,7 @@ class Sketch {
 
   toggleMode = () => {
     if (this.currentMode == Modes.DRAW) { // draw -> submit -> show 
+      this.enteredShowModeCallback();
       this.currentMode = Modes.SUBMIT;
       this.renderBackground();
       this.timeEnteredShow = Date.now();
@@ -194,6 +204,7 @@ class Sketch {
       }, 30000)
 
     } else if (this.currentMode == Modes.SHOW) { // show mode -> draw mode 
+      this.enteredDrawModeCallback();
       this.nextImage(); // Move to next image after show
       this.currentMode = Modes.DRAW
 

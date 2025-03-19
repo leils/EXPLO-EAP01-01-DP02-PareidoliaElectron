@@ -7,12 +7,14 @@
       rel="stylesheet"
       :href="theme"
     >
-    <SketchComponent ref="sketch" />
+    <SketchComponent @show-mode="showCallback" @draw-mode="drawCallback" ref="sketch" />
 
-    <div class="buttonBar">
-      <button class="eapbutton" id="undoButton" type="button">Undo</button>
-      <button class="eapbutton" id="submitButton" type="button">Submit</button>
-      <button class="eapbutton" id="nextImageButton" type="button">Next Image</button>
+    <div class="uiOverlay" id="uiOverlay" ref="ui">
+      <div class="buttonBar">
+        <button class="eapbutton" id="undoButton" type="button">Undo</button>
+        <button class="eapbutton" id="submitButton" type="button">Submit</button>
+        <button class="eapbutton" id="nextImageButton" type="button">Next Image</button>
+      </div>
     </div>
   </div>
 </template>
@@ -115,6 +117,12 @@ export default {
     },
     submit() {
       this.$refs.sketch.submit();
+    },
+    showCallback() {
+      this.$refs.ui.style.visibility = "hidden";
+    },
+    drawCallback() {
+      this.$refs.ui.style.visibility = "visible";
     }
   }
 };

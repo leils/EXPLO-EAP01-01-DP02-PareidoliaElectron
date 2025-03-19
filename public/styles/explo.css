@@ -237,7 +237,7 @@ button, .undoButton , .nextButton{
   display: flex;
   justify-content: space-evenly;
   width: 80%;
-  
+  color: #FFFFFF; 
 }
 
 .eapbutton {
