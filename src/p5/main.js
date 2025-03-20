@@ -85,7 +85,6 @@ class Sketch {
 
     this.config = config;
     this.appScale = appScale;
-    this.drawTextIn = 3;
     this.font;
 
     this.currentMode = Modes.DRAW;
