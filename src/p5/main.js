@@ -12,6 +12,7 @@ if (typeof (process) != 'undefined' && isElectron() == true && (process.env.NODE
 const canvasW = 1080;
 const canvasH = 1920;
 const maxDrawingsToShow = 5;
+const showModeLength = 10000; //default should be 30,000
 
 /*--------------------- Pareidolia - P5 Start -------------------------*/
 // Background images 
@@ -76,13 +77,12 @@ const buttonDeadZoneHeight = 200;
 
 class Sketch {
   constructor(
+    vueContainer,
     config, 
     appScale, 
-    drawingData, 
-    updateDrawingData, 
-    enteredShowModeCallback, 
-    enteredDrawModeCallback) {
+    drawingData) {
 
+    this.vueContainer = vueContainer;
     this.config = config;
     this.appScale = appScale;
     this.font;
@@ -99,9 +99,6 @@ class Sketch {
     this.promptTextSize = 50; 
 
     this.drawingList = drawingData;
-    this.updateDrawingData = updateDrawingData;
-    this.enteredShowModeCallback = enteredShowModeCallback;
-    this.enteredDrawModeCallback = enteredDrawModeCallback;
     this.strokeList = [];
     this.currentStroke = [];
 
@@ -187,7 +184,7 @@ class Sketch {
 
   toggleMode = () => {
     if (this.currentMode == Modes.DRAW) { // draw -> submit -> show 
-      this.enteredShowModeCallback();
+      this.vueContainer.enteredShowMode();
       this.currentMode = Modes.SUBMIT;
       this.renderBackground();
       this.timeEnteredShow = Date.now();
@@ -197,13 +194,13 @@ class Sketch {
       // Set a timeout to return to draw mode after 30 seconds of Show 
       setTimeout(() => {
         let nowTime = Date.now();
-        if (this.currentMode == Modes.SHOW && ((nowTime - this.timeEnteredShow) >= 30000)) {
+        if (this.currentMode == Modes.SHOW && ((nowTime - this.timeEnteredShow) >= showModeLength)) {
           this.toggleMode();
         }
-      }, 30000)
+      }, showModeLength)
 
     } else if (this.currentMode == Modes.SHOW) { // show mode -> draw mode 
-      this.enteredDrawModeCallback();
+      this.vueContainer.enteredDrawMode();
       this.nextImage(); // Move to next image after show
       this.currentMode = Modes.DRAW
 
@@ -337,7 +334,7 @@ class Sketch {
       this.toggleMode();
     }
 
-    this.updateDrawingData(this.drawingList);
+    this.vueContainer.updateDrawingData(this.drawingList);
   }
 
   changeColor = () => {

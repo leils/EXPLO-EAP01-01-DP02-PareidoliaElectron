@@ -31,12 +31,10 @@ export default {
   },
   mounted() {
     this.sketch = new Sketch(
+      this,
       this.config.sketch, 
       this.appScale, 
-      this.persistent.drawings, 
-      this.updateDrawingData,
-      this.enteredShowMode,
-      this.enteredDrawMode
+      this.persistent.drawings 
     );
   },
   unmounted() {
