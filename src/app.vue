@@ -10,6 +10,7 @@
     <SketchComponent @show-mode="showCallback" @draw-mode="drawCallback" ref="sketch" />
 
     <div class="uiOverlay" id="uiOverlay" ref="ui">
+      <div><p>hello</p></div>
       <div class="buttonBar">
         <button class="eapbutton" id="undoButton" type="button">Undo</button>
         <button class="eapbutton" id="submitButton" type="button">Submit</button>
