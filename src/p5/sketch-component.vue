@@ -6,11 +6,13 @@
     <div>
       <p>hello</p>
     </div>
-    <div class="buttonBar">
-      <button class="eapbutton" id="undoButton" type="button">Undo</button>
-      <button class="eapbutton" id="submitButton" type="button">Submit</button>
-      <button class="eapbutton" id="nextImageButton" type="button">Next Image</button>
-    </div>
+    <Transition>
+      <div v-if="inDrawMode" class="buttonBar">
+        <button class="eapbutton" id="undoButton" type="button">Undo</button>
+        <button class="eapbutton" id="submitButton" type="button">Submit</button>
+        <button class="eapbutton" id="nextImageButton" type="button">Next Image</button>
+      </div>
+    </Transition>
   </div>
 </template>
 
@@ -26,6 +28,7 @@ export default {
   data: function () {
     return {
       sketch: Object,
+      inDrawMode: true,
     };
   },
   computed: mapState([
@@ -74,11 +77,11 @@ export default {
     submit() {
       this.sketch.submitDrawing();
     },
-    showCallback() {
-      this.$refs.ui.style.visibility = "hidden";
+    showMode() {
+      this.inDrawMode = false;
     },
-    drawCallback() {
-      this.$refs.ui.style.visibility = "visible";
+    drawMode() {
+      this.inDrawMode = true;
     }
   }
 };

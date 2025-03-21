@@ -184,7 +184,7 @@ class Sketch {
 
   toggleMode = () => {
     if (this.currentMode == Modes.DRAW) { // draw -> submit -> show 
-      this.vueContainer.enteredShowMode();
+      this.vueContainer.showMode();
       this.currentMode = Modes.SUBMIT;
       this.renderBackground();
       this.timeEnteredShow = Date.now();
@@ -200,7 +200,7 @@ class Sketch {
       }, showModeLength)
 
     } else if (this.currentMode == Modes.SHOW) { // show mode -> draw mode 
-      this.vueContainer.enteredDrawMode();
+      this.vueContainer.drawMode();
       this.nextImage(); // Move to next image after show
       this.currentMode = Modes.DRAW
 
