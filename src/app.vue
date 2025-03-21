@@ -7,16 +7,7 @@
       rel="stylesheet"
       :href="theme"
     >
-    <SketchComponent @show-mode="showCallback" @draw-mode="drawCallback" ref="sketch" />
-
-    <div class="uiOverlay" id="uiOverlay" ref="ui">
-      <div><p>hello</p></div>
-      <div class="buttonBar">
-        <button class="eapbutton" id="undoButton" type="button">Undo</button>
-        <button class="eapbutton" id="submitButton" type="button">Submit</button>
-        <button class="eapbutton" id="nextImageButton" type="button">Next Image</button>
-      </div>
-    </div>
+    <SketchComponent ref="sketch" />
   </div>
 </template>
 
@@ -80,14 +71,7 @@ export default {
       }
     });
 
-    const undobutton = document.getElementById('undoButton');
-    const submitbutton = document.getElementById('submitButton');
-    const nextbutton = document.getElementById('nextImageButton');
-    
-    undobutton.onclick = this.undo;
-    submitbutton.onclick = this.submit;
-    nextbutton.onclick = this.nextImage;
-    
+   
     if (isElectron()) {
       // subscribe to the reset event defined in the config.json file
       this.adminPortal.on('reset', this.reset);
@@ -110,21 +94,7 @@ export default {
         this.reset();
       }, this.config.template.idle);
     },
-    nextImage() {
-      this.$refs.sketch.nextImage();
-    },
-    undo() {
-      this.$refs.sketch.undo();
-    },
-    submit() {
-      this.$refs.sketch.submit();
-    },
-    showCallback() {
-      this.$refs.ui.style.visibility = "hidden";
-    },
-    drawCallback() {
-      this.$refs.ui.style.visibility = "visible";
-    }
+    
   }
 };
 </script>

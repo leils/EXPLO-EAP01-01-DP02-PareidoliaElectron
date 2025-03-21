@@ -1,6 +1,16 @@
 <template>
   <div>
-    <div id="sketch" /> 
+    <div id="sketch" />
+  </div>
+  <div class="uiOverlay" id="uiOverlay" ref="ui">
+    <div>
+      <p>hello</p>
+    </div>
+    <div class="buttonBar">
+      <button class="eapbutton" id="undoButton" type="button">Undo</button>
+      <button class="eapbutton" id="submitButton" type="button">Submit</button>
+      <button class="eapbutton" id="nextImageButton" type="button">Next Image</button>
+    </div>
   </div>
 </template>
 
@@ -11,10 +21,9 @@ import { Sketch } from './main.js';
 
 export default {
   name: 'SketchComponent',
-  emits: ['showMode', 'drawMode'],
   props: {
   },
-  data: function() {
+  data: function () {
     return {
       sketch: Object,
     };
@@ -32,10 +41,14 @@ export default {
   mounted() {
     this.sketch = new Sketch(
       this,
-      this.config.sketch, 
-      this.appScale, 
-      this.persistent.drawings 
+      this.config.sketch,
+      this.appScale,
+      this.persistent.drawings
     );
+
+    document.getElementById('undoButton').onclick = this.undo;
+    document.getElementById('submitButton').onclick = this.submit;
+    document.getElementById('nextImageButton').onclick = this.nextImage;
   },
   unmounted() {
     this.sketch.remove();
@@ -48,11 +61,11 @@ export default {
       'persistData'
     ]),
     updateDrawingData(dataToSave) {
-      let pd = this.persistent; 
-      pd.drawings= dataToSave;
+      let pd = this.persistent;
+      pd.drawings = dataToSave;
       this.persistData(pd);
     },
-    nextImage() { 
+    nextImage() {
       this.sketch.nextImage();
     },
     undo() {
@@ -61,11 +74,11 @@ export default {
     submit() {
       this.sketch.submitDrawing();
     },
-    enteredShowMode() {
-      this.$emit("showMode");
+    showCallback() {
+      this.$refs.ui.style.visibility = "hidden";
     },
-    enteredDrawMode() {
-      this.$emit("drawMode");
+    drawCallback() {
+      this.$refs.ui.style.visibility = "visible";
     }
   }
 };
