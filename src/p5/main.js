@@ -37,10 +37,6 @@ const imgPathList = [
   "singleboulder.jpg"
 ]
 
-// Prompts
-const drawPromptText = "Do you see something in this image? Draw it!";
-const showPromptText = "Did they see what you saw? \nTap the screen for a new image.";
-const afterSubmitText = "Great! Let's see what some other people drew.";
 /*--------------------- Drawings variables -------------------------*/
 /* 
  * class Drawing 
@@ -134,15 +130,11 @@ class Sketch {
 
       // Draw loop 
       // TODO: handle flash animation better, more cleanly 
-      // Move drawPrompt out of p5 into vueComponent
       p.draw = () => {
         if (this.currentMode == Modes.SHOW) {
           this.renderShowModeFrame();
         }
         this.handleFlashAnimation();
-        if (this.currentMode != Modes.SUBMIT) {
-          this.drawPrompt();
-        }
       };
 
       p.reset = () => {
@@ -269,20 +261,8 @@ class Sketch {
 
     if (this.flashOpacity > 0) {
       p.push();
-      // Rendering submit text
       this.renderBackground();
-      p.noStroke();
-      p.fill('black');
-      p.rectMode(p.CENTER);
-      p.rect(canvasW/2, canvasH/2 - (this.promptTextSize/3), canvasW, 100);
-      p.strokeWeight(3);
-      p.stroke('black');
-      p.fill('yellow');
-      p.textAlign(p.CENTER);
-      p.text(afterSubmitText, canvasW/2, canvasH/2);
-      p.pop();
-  
-      p.push();
+
       // Render the "flash" animation
       p.noStroke();
       let flashColor = p.color("white");
@@ -295,26 +275,6 @@ class Sketch {
   }
 
   //-------------------- Mode & Mode Control ---------------------//
-  drawPrompt = () => {
-    const p = this.p5SketchObject;
-    // TODO incorporate submit mode into prompt drawing for clarity
-    p.push();
-    p.fill("black");
-    p.noStroke();
-    p.rectMode(p.CORNER);
-    p.rect(0, canvasH - buttonDeadZoneHeight, canvasW, canvasH);
-
-    p.strokeWeight(3);
-    p.stroke('black');
-    p.fill('yellow');
-    if (this.currentMode == Modes.DRAW) {
-      p.text(drawPromptText, canvasW / 2, canvasH - 150);
-    } else {
-      p.text(showPromptText, canvasW / 2, canvasH - 120);
-    }
-    p.pop();
-  }
-
   nextImage = () => {
     this.currentImageIndex = this.currentImageIndex >= this.loadedImages.length - 1 ? 0 : this.currentImageIndex + 1;
     this.resetCanvas(); // also remove the current drawings 
