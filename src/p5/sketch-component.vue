@@ -1,18 +1,21 @@
+<!-- TODO: use Transition elements -->
 <template>
   <div>
     <div id="sketch" />
   </div>
-  <div class="uiOverlay" id="uiOverlay" ref="ui">
+  <!-- TODO: the v-show here doesn't remove this properly fater transition is over -->
+  <!-- <div v-show="inTransitionMode" class="showTransitionOverlay">
+      <p class="prompt">Great! Let's see what some other people drew.</p>
+  </div> -->
+  <div class="uiOverlay" ref="ui">
     <div>
-      <p>hello</p>
+      <p class="prompt" ref="prompt">Do you see something in this image? Draw it!</p>
     </div>
-    <Transition>
-      <div v-if="inDrawMode" class="buttonBar">
-        <button class="eapbutton" id="undoButton" type="button">Undo</button>
-        <button class="eapbutton" id="submitButton" type="button">Submit</button>
-        <button class="eapbutton" id="nextImageButton" type="button">Next Image</button>
-      </div>
-    </Transition>
+    <div v-show="inDrawMode" class="buttonBar">
+      <button class="eapbutton" id="undoButton" type="button">Undo</button>
+      <button class="eapbutton" id="submitButton" type="button">Submit</button>
+      <button class="eapbutton" id="nextImageButton" type="button">Next Image</button>
+    </div>
   </div>
 </template>
 
@@ -79,9 +82,19 @@ export default {
     },
     showMode() {
       this.inDrawMode = false;
+      // this.inTransitionMode = true;
+      // console.log(this.inTransitionMode);
+      this.$refs.prompt.innerText = "Great! Let's see what some other people drew.";
+      
+      setTimeout(() => {
+        // this.inTransitionMode = false;
+        // console.log(this.inTransitionMode);
+        this.$refs.prompt.innerText = "Did they see what you saw? \nTap the screen for a new image.";
+      }, 2000)
     },
     drawMode() {
       this.inDrawMode = true;
+      this.$refs.prompt.innerText = "Do you see something in this image? Draw it!";
     }
   }
 };

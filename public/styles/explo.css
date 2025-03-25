@@ -232,12 +232,23 @@ button,
   height: 80px;
 }
 
+.showTransitionOverlay {
+  position: fixed;
+  z-index: 9999;
+  width: 100%;
+  height: 200px;
+  bottom: 50%;
+  transform: translateY(-50%);
+  background-color: #2A2A2A;
+  color:#d8efdd;
+}
+
 .uiOverlay {
   position: fixed;
   bottom: 0px;
   left: 0px;
   width: 100%;
-  height: 350px;
+  height: 300px;
   z-index: 9999;
   background-color: #2A2A2A;
   color:#d8efdd;
@@ -270,4 +281,10 @@ button,
 
 .eapbutton:active {
   background: #06592D;
+}
+
+.prompt {
+  text-align: center;
+  font-size: 3.2rem;
+  padding: 0 1em;
 }

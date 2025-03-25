@@ -11,8 +11,9 @@ if (typeof (process) != 'undefined' && isElectron() == true && (process.env.NODE
 
 const canvasW = 1080;
 const canvasH = 1920;
+
 const maxDrawingsToShow = 5;
-const showModeLength = 10000; //default should be 30,000
+const showModeLength = 10000; //default should be 30,000, shortened for testing
 
 /*--------------------- Pareidolia - P5 Start -------------------------*/
 // Background images 
@@ -131,6 +132,9 @@ class Sketch {
         this.renderBackground();
       };
 
+      // Draw loop 
+      // TODO: handle flash animation better, more cleanly 
+      // Move drawPrompt out of p5 into vueComponent
       p.draw = () => {
         if (this.currentMode == Modes.SHOW) {
           this.renderShowModeFrame();
@@ -181,7 +185,8 @@ class Sketch {
   }
 
   //-------------------- Mode & Mode Control ---------------------//
-
+  // TODO: separate out toggleMode into individual controls with safety
+  // Logic is too complex here, hard to read and understand 
   toggleMode = () => {
     if (this.currentMode == Modes.DRAW) { // draw -> submit -> show 
       this.vueContainer.showMode();
@@ -211,11 +216,13 @@ class Sketch {
   }
 
   showModeSetup = () => {
-    this.renderBackground();
+    // Get a max of maxDrawingsToShow previous drawings to show during show mode 
     this.drawingsForCurrentImage = this.drawingList.filter(d => d.imgName == this.loadedImages[this.currentImageIndex].name);
     if (this.drawingsForCurrentImage.length > maxDrawingsToShow) {
       this.drawingsForCurrentImage = this.drawingsForCurrentImage.slice(-(maxDrawingsToShow)); // only show the 5 latest images
     }
+
+    // Prep to draw first drawing at 0 opacity 
     this.currentImageDrawingIndex = 0;
     this.drawingOpacity = 0;
     this.drawingColor = this.p5SketchObject.color(this.drawingsForCurrentImage[this.currentImageDrawingIndex].colorStr);
@@ -232,8 +239,10 @@ class Sketch {
   renderShowModeFrame = () => {
     const p = this.p5SketchObject;
 
+    // Reset background 
     this.renderBackground();
   
+    // Render the drawing at current opacity 
     p.push();
     let drawing = this.drawingsForCurrentImage[this.currentImageDrawingIndex];
     this.drawingColor.setAlpha(this.drawingOpacity);
@@ -241,6 +250,7 @@ class Sketch {
     this.drawStrokes(drawing.strokes);
     p.pop();
   
+    // Increase opacity until max, then move to next drawing
     if (this.drawingOpacity < 255) {
       this.drawingOpacity+=2;
     } else {
