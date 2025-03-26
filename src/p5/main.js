@@ -117,6 +117,9 @@ class Sketch {
         p.stroke(colorList[this.currentColorIndex]);
         p.background('blue');
 
+        p.drawingContext.shadowBlur = 20;
+        p.drawingContext.shadowColor = 'black';
+
         this.renderBackground();
       };
 
@@ -340,8 +343,13 @@ class Sketch {
 
   pointerLocationIsValid = () => {
     const p = this.p5SketchObject;
-    let d = p.dist(p.pmouseX, p.pmouseY, p.mouseX, p.mouseY);
-    if (d > 100 || p.mouseY / this.appScale > (1920 - buttonDeadZoneHeight)) {
+    // let d = p.dist(p.pmouseX, p.pmouseY, p.mouseX, p.mouseY);
+    let lastPoint = this.currentStroke.at(-1);
+
+
+    let d = p.dist(lastPoint.x, lastPoint.y, p.mouseX/this.appScale, p.mouseY/this.appScale);
+
+    if (d < 5 || d > 100 || p.mouseY / this.appScale > (1920 - buttonDeadZoneHeight)) {
       return false;
     } else {
       return true;
