@@ -1,3 +1,4 @@
+// Todo: too much of the drawing/submission logic is here, should eventually move out into Vue
 import p5 from 'p5';
 import isElectron from 'is-electron';
 import { v4 as uuidv4 } from 'uuid';
@@ -14,6 +15,8 @@ const canvasH = 1920;
 
 const maxDrawingsToShow = 5;
 const showModeLength = 10000; //default should be 30,000, shortened for testing
+
+const buttonDeadZoneHeight = 200;
 
 /*--------------------- Pareidolia - P5 Start -------------------------*/
 // Background images 
@@ -66,10 +69,6 @@ const Modes = Object.freeze({
   SHOW: 2
 });
 
-/*--------------------- Buttons -------------------------*/
-const buttonOffset = 100;
-const buttonDeadZoneHeight = 200;
-
 /*--------------------- END -------------------------*/
 
 class Sketch {
@@ -90,10 +89,6 @@ class Sketch {
     this.loadedImages = [];
     this.currentImageIndex = 0;
     this.currentColorIndex = 0;
-
-    this.allButtons = [];
-    this.buttonHeight;
-    this.promptTextSize = 50; 
 
     this.drawingList = drawingData;
     this.strokeList = [];
@@ -118,9 +113,6 @@ class Sketch {
       p.setup = () => {
         p.createCanvas(canvasW, canvasH);
 
-        this.buttonHeight = canvasH - 120;
-        p.textSize(this.promptTextSize);
-        p.textAlign(p.CENTER);
         p.strokeWeight(setStrokeWeight);
         p.stroke(colorList[this.currentColorIndex]);
         p.background('blue');
@@ -156,8 +148,6 @@ class Sketch {
       }
 
       p.touchStarted = () => {
-
-        console.log('touchStarted');
         // touch functionality means the mouse can "jump" across the screen 
         // pmouse is previous mouse; this is built-in P5 functionality 
 

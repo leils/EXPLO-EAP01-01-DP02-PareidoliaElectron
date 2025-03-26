@@ -7,8 +7,8 @@
       <p class="prompt">Great! Let's see what some other people drew.</p>
   </div>
   <div class="uiOverlay" ref="ui">
-    <div>
-      <p class="prompt" ref="prompt">Do you see something in this image? Draw it!</p>
+    <div v-show="!inTransitionMode">
+      <p  class="prompt" ref="prompt">Do you see something in this image? Draw it!</p>
     </div>
     <div v-show="inDrawMode" class="buttonBar">
       <button class="eapbutton" id="undoButton" type="button">Undo</button>
@@ -83,7 +83,7 @@ export default {
     showMode() {
       this.inDrawMode = false;
       this.inTransitionMode = true;
-      this.$refs.prompt.innerText = "Great! Let's see what some other people drew.";
+      this.$refs.prompt.innerText = "";
       
       setTimeout(() => {
         this.inTransitionMode = false;
