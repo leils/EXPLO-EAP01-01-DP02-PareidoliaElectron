@@ -156,20 +156,33 @@ class Sketch {
       }
 
       p.touchStarted = () => {
+
+        console.log('touchStarted');
         // touch functionality means the mouse can "jump" across the screen 
-        // This is a hack to make sure the stroke starts where touch starts 
+        // pmouse is previous mouse; this is built-in P5 functionality 
+
+        // this hack ensures that lines don't cross per-touch
         p.pmouseX = p.mouseX/this.appScale;
         p.pmouseY = p.mouseY/this.appScale;
 
+        this.currentStroke.push({ x: p.mouseX/this.appScale, y: p.mouseY/this.appScale });
+
+        // TODO: handle this in the vue component 
         if (this.currentMode == Modes.SHOW) {
           this.toggleMode();
         }
       }
 
       p.mouseDragged = () => {
-        if (this.currentMode == Modes.DRAW && this.pointerLocationIsValid())
-          p.line(p.pmouseX / this.appScale, p.pmouseY / this.appScale, p.mouseX / this.appScale, p.mouseY / this.appScale);
-        this.currentStroke.push({ x: p.mouseX/this.appScale, y: p.mouseY/this.appScale });
+        if (this.currentMode == Modes.DRAW && this.pointerLocationIsValid()) {
+          this.currentStroke.push({ x: p.mouseX/this.appScale, y: p.mouseY/this.appScale });
+          p.line(
+            this.currentStroke.at(-2).x,
+            this.currentStroke.at(-2).y,
+            this.currentStroke.at(-1).x,
+            this.currentStroke.at(-1).y
+          )
+        }
       }
     };
 
