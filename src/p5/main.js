@@ -66,7 +66,8 @@ const colorList = ["aqua", "red", "lime", "violet", "yellow"];
 const Modes = Object.freeze({
   DRAW: 0,
   SUBMIT: 1,
-  SHOW: 2
+  SHOW: 2,
+  ADMIN: 3
 });
 
 /*--------------------- END -------------------------*/
@@ -83,7 +84,6 @@ class Sketch {
     this.appScale = appScale;
     this.font;
 
-    this.adminMode = false;
     this.currentMode = Modes.DRAW;
     this.timeEnteredShow = 0;
 
@@ -127,7 +127,7 @@ class Sketch {
       // Draw loop 
       // TODO: handle flash animation better, more cleanly 
       p.draw = () => {
-        if (this.currentMode == Modes.SHOW) {
+        if ((this.currentMode == Modes.SHOW) || this.currentMode == Modes.ADMIN) {
           this.renderShowModeFrame();
         }
         this.handleFlashAnimation();
@@ -181,18 +181,17 @@ class Sketch {
 
       p.keyPressed = () => {
         console.log('keypressed registered');
+        console.log('current mode: ', this.currentMode);
         if (p.key == "m") {
           console.log("mode change via keyboard");
           if (this.currentMode == Modes.DRAW) {
-            this.adminMode = true;
             this.enterAdminMode();
           } else {
-            this.adminMode = false;
             this.enterDrawMode();
           }
         }
 
-        if (this.adminMode && this.currentMode == Modes.SHOW) {
+        if (this.currentMode == Modes.ADMIN) {
           if (p.keyCode === p.LEFT_ARROW) {
             console.log('prev drawing via arrow');
             this.prevDrawing();
@@ -220,7 +219,10 @@ class Sketch {
     this.timeEnteredShow = Date.now();
 
     this.vueContainer.showMode();
-    setTimeout(() => { this.showModeSetup(); }, 2000); //goes to ShowMode in 2 seconds
+    setTimeout(() => { 
+      this.showDrawingsSetup(); 
+      this.currentMode = Modes.SHOW;
+    }, 2000); //goes to ShowMode in 2 seconds
 
     // If we are in Show mode too long, return to Draw Mode
     setTimeout(() => {
@@ -231,16 +233,13 @@ class Sketch {
     }, showModeLength) 
   }
 
-  // Todo: update modes to include AdminMode, rather than being handled separately
   enterAdminMode = () => {
+    this.currentMode = Modes.ADMIN;
     this.vueContainer.adminMode();
-    this.showModeSetup(); 
+    this.showDrawingsSetup(); 
   }
 
   enterDrawMode = () => {
-    if (this.adminMode) {
-      this.adminMode = false;
-    }
     this.vueContainer.drawMode();
     this.nextImage(); // Move to next image after show
     this.currentMode = Modes.DRAW
@@ -248,12 +247,12 @@ class Sketch {
     this.showModeTeardown();
   }
 
-  showModeSetup = () => {
+  showDrawingsSetup = () => {
     // Get a max of maxDrawingsToShow previous drawings to show during show mode 
     this.drawingsForCurrentImage = this.drawingList.filter(d => d.imgName == this.loadedImages[this.currentImageIndex].name);
     this.currentImageDrawingIndex = 0;
 
-    if (this.adminMode) {
+    if (this.currentMode == Modes.ADMIN) {
       this.drawingOpacity = 255;
     } else {
       this.drawingOpacity = 0;
@@ -262,8 +261,6 @@ class Sketch {
       }
     }
     this.drawingColor = this.p5SketchObject.color(this.drawingsForCurrentImage[this.currentImageDrawingIndex].colorStr);
-
-    this.currentMode = Modes.SHOW;
   }
 
   showModeTeardown = () => {
@@ -286,7 +283,7 @@ class Sketch {
     this.drawStrokes(drawing.strokes);
     p.pop();
 
-    if (!this.adminMode) {
+    if (this.currentMode != Modes.ADMIN) {
       if (this.drawingOpacity < 255) {
         this.drawingOpacity += 2;
       } else {
