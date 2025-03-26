@@ -163,7 +163,7 @@ class Sketch {
 
         // TODO: handle this in the vue component 
         if (this.currentMode == Modes.SHOW) {
-          this.toggleMode();
+          this.enterDrawMode();
         }
       }
 
@@ -185,9 +185,11 @@ class Sketch {
           console.log("mode change via keyboard");
           if (this.currentMode == Modes.DRAW) {
             this.adminMode = true;
+            this.enterAdminMode();
+          } else {
+            this.adminMode = false;
+            this.enterDrawMode();
           }
-
-          this.toggleMode();
         }
 
         if (this.adminMode && this.currentMode == Modes.SHOW) {
@@ -211,42 +213,39 @@ class Sketch {
   }
 
   //-------------------- Mode & Mode Control ---------------------//
-  // TODO: separate out toggleMode into individual controls with safety
-  // Logic is too complex here, hard to read and understand 
-  toggleMode = () => {
-    if (this.currentMode == Modes.DRAW) { // draw -> submit -> show 
+  // 
+  enterSubmitToShowMode = () => {
+    this.currentMode = Modes.SUBMIT;
+    this.renderBackground();
+    this.timeEnteredShow = Date.now();
 
-      if (!this.adminMode) {
-        this.currentMode = Modes.SUBMIT;
-        this.renderBackground();
-        this.timeEnteredShow = Date.now();
+    this.vueContainer.showMode();
+    setTimeout(() => { this.showModeSetup(); }, 2000); //goes to ShowMode in 2 seconds
 
-        this.vueContainer.showMode();
-        setTimeout(() => { this.showModeSetup(); }, 2000); //goes to ShowMode in 2 seconds
-
-        setTimeout(() => {
-          let nowTime = Date.now();
-          if (this.currentMode == Modes.SHOW && ((nowTime - this.timeEnteredShow) >= 30000)) {
-            this.toggleMode();
-          }
-        }, showModeLength)
-      } else {
-        this.vueContainer.adminMode();
-        this.showModeSetup();
+    // If we are in Show mode too long, return to Draw Mode
+    setTimeout(() => {
+      let nowTime = Date.now();
+      if (this.currentMode == Modes.SHOW && ((nowTime - this.timeEnteredShow) >= 30000)) {
+        this.enterDrawMode();
       }
+    }, showModeLength) 
+  }
 
-    } else if (this.currentMode == Modes.SHOW) { // show mode -> draw mode 
-      if (this.adminMode) {
-        this.adminMode = false;
-      }
-      this.vueContainer.drawMode();
-      this.nextImage(); // Move to next image after show
-      this.currentMode = Modes.DRAW
+  // Todo: update modes to include AdminMode, rather than being handled separately
+  enterAdminMode = () => {
+    this.vueContainer.adminMode();
+    this.showModeSetup(); 
+  }
 
-      this.showModeTeardown();
-    } else {
-      throw Error("Unexpected toggle call during unsupported mode, likely Submit");
+  enterDrawMode = () => {
+    if (this.adminMode) {
+      this.adminMode = false;
     }
+    this.vueContainer.drawMode();
+    this.nextImage(); // Move to next image after show
+    this.currentMode = Modes.DRAW
+
+    this.showModeTeardown();
   }
 
   showModeSetup = () => {
@@ -371,7 +370,7 @@ class Sketch {
       this.strokeList = [];
       this.renderBackground();
       this.changeColor();
-      this.toggleMode();
+      this.enterSubmitToShowMode();
     }
 
     this.vueContainer.updateDrawingData(this.drawingList);
@@ -407,10 +406,7 @@ class Sketch {
 
   pointerLocationIsValid = () => {
     const p = this.p5SketchObject;
-    // let d = p.dist(p.pmouseX, p.pmouseY, p.mouseX, p.mouseY);
     let lastPoint = this.currentStroke.at(-1);
-
-
     let d = p.dist(lastPoint.x, lastPoint.y, p.mouseX / this.appScale, p.mouseY / this.appScale);
 
     if (d < 5 || d > 100 || p.mouseY / this.appScale > (1920 - buttonDeadZoneHeight)) {
