@@ -1,4 +1,3 @@
-
 /* font url must be relative to style sheet to work in both dev and built app */
 @font-face {
   font-family: "Explo";
@@ -18,14 +17,14 @@
   font-family: "Explo";
   src: url("../assets/fonts/Explo-Light.otf") format("opentype");
   font-weight: 300;
-	font-style: normal;
+  font-style: normal;
 }
 
 @font-face {
   font-family: "Explo";
   src: url("../assets/fonts/Explo-LightIta.otf") format("opentype");
   font-weight: 300;
-	font-style: italic;
+  font-style: italic;
 }
 
 @font-face {
@@ -46,14 +45,14 @@
   font-family: "Explo";
   src: url("../assets/fonts/Explo-Medi.otf") format("opentype");
   font-weight: 500;
-	font-style: normal;
+  font-style: normal;
 }
 
 @font-face {
   font-family: "Explo";
   src: url("../assets/fonts/Explo-MediIta.otf") format("opentype");
   font-weight: 500;
-	font-style: italic;
+  font-style: italic;
 }
 
 @font-face {
@@ -98,41 +97,41 @@
   font-style: italic;
 }
 
-.font-thin, 
+.font-thin,
 .font-thin-ita {
   font-weight: 100;
 }
 
-.font-light, 
+.font-light,
 .font-light-ita {
   font-weight: 300;
 }
 
-.font-normal, 
-.font-regular, 
-.font-normal-ita, 
+.font-normal,
+.font-regular,
+.font-normal-ita,
 .font-regular-ita {
   font-weight: 400;
 }
 
-.font-medium, 
-.font-medi, 
-.font-medium-ita, 
-.font-medi-ita  {
+.font-medium,
+.font-medi,
+.font-medium-ita,
+.font-medi-ita {
   font-weight: 500;
 }
 
-.font-bold, 
-.font-bold-ita  {
+.font-bold,
+.font-bold-ita {
   font-weight: 700;
 }
 
-.font-black, 
+.font-black,
 .font-black-ita {
   font-weight: 900;
 }
 
-.font-ultra, 
+.font-ultra,
 .font-ultra-ita {
   font-weight: 950;
 }
@@ -145,12 +144,12 @@
   font-style: italic;
 }
 
-.font-normal-ita, 
+.font-normal-ita,
 .font-regular-ita {
   font-style: italic;
 }
 
-.font-medium-ita, 
+.font-medium-ita,
 .font-medi-ita {
   font-style: italic;
 }
@@ -168,22 +167,24 @@
 }
 
 /* by default strong and bold tags are relative to parent font-weight, we want it to always be the bold font (font-weight 700) */
-strong, b{
-  font-weight:700;
+strong,
+b {
+  font-weight: 700;
 }
 
-h1, h2 {
-  color: black;
+h1,
+h2 {
+  color:#d8efdd;
   font-family: "Explo";
   font-weight: bold;
 }
 
 body {
-  background: black ;
+  background: black;
   font-family: "Explo";
   font-weight: 300;
   /* user-select: none; */
-  cursor:none;
+  /* cursor:none; */
 }
 
 #app {
@@ -192,22 +193,24 @@ body {
   /* cursor: none; */
 }
 
-button, .undoButton , .nextButton{
+button,
+.undoButton,
+.nextButton {
   font-size: 30px;
   font-weight: 600;
   border: none;
   border-radius: 5px;
   padding: 18px;
   color: black;
-  background:white;
+  background: white;
   user-select: none;
-  cursor: none;
+  /* cursor: none; */
 }
 
-.undoButton::before { 
+.undoButton::before {
   background-image: url(../assets/undo-larger.png);
   background-size: 40px 40px;
-  margin-right:4px;
+  margin-right: 4px;
   display: inline-block;
   width: 40px;
   height: 34px;
@@ -226,5 +229,62 @@ button, .undoButton , .nextButton{
 .submitButton {
   background-color: yellow;
   font-weight: 800;
-  height:80px;
+  height: 80px;
+}
+
+.showTransitionOverlay {
+  position: fixed;
+  z-index: 9999;
+  width: 100%;
+  height: 200px;
+  bottom: 50%;
+  transform: translateY(-50%);
+  background-color: #2A2A2A;
+  color:#d8efdd;
+}
+
+.uiOverlay {
+  position: fixed;
+  bottom: 0px;
+  left: 0px;
+  width: 100%;
+  height: 300px;
+  z-index: 9999;
+  background-color: #2A2A2A;
+  color:#d8efdd;
+}
+
+.buttonBar {
+  position: fixed;
+  bottom: 50px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  justify-content: space-evenly;
+  width: 80%;
+  color: #FFFFFF;
+}
+
+.eapbutton {
+  display: flex;
+  align-items: center;
+  padding: 25px 35px;
+  height: 73px;
+
+  background: #2CAA61;
+  border-radius: 20px;
+
+  letter-spacing: 0.005em;
+  color: #FFFFFF;
+
+}
+
+.eapbutton:active {
+  background: #06592D;
+}
+
+.prompt {
+  text-align: center;
+  font-size: 3.2rem;
+  padding: 0 1em;
 }

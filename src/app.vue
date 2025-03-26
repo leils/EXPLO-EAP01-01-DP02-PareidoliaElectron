@@ -71,7 +71,7 @@ export default {
       }
     });
 
-    
+   
     if (isElectron()) {
       // subscribe to the reset event defined in the config.json file
       this.adminPortal.on('reset', this.reset);
@@ -93,7 +93,8 @@ export default {
       this.idleTimeout = setTimeout(() => {
         this.reset();
       }, this.config.template.idle);
-    }
+    },
+    
   }
 };
 </script>
@@ -138,32 +139,4 @@ body {
   opacity: 0;
 }
 /* end EVT core styles*/
-
-/* begin styles specific to the template's example code */
-.module {
-  border: 2px solid black;
-  margin: 5px;
-  padding-left: 5px;
-  padding-right: 5px;
-}
-
-.twoColParent {
-  display: flex;
-  flex-direction: row;
-}
-
-.twoColChild {
-  width: 50%;
-}
-
-.twoColParent > div:first-child + div {
-  padding-left: 20px;
-  padding-right: 20px;
-}
-
-.yamlText {
-  background-color: lightskyblue;
-}
-/* end styles specific to the template's example code*/
-
 </style>

@@ -1,3 +1,4 @@
+// Todo: too much of the drawing/submission logic is here, should eventually move out into Vue
 import p5 from 'p5';
 import isElectron from 'is-electron';
 import { v4 as uuidv4 } from 'uuid';
@@ -11,7 +12,11 @@ if (typeof (process) != 'undefined' && isElectron() == true && (process.env.NODE
 
 const canvasW = 1080;
 const canvasH = 1920;
+
 const maxDrawingsToShow = 5;
+const showModeLength = 10000; //default should be 30,000, shortened for testing
+
+const buttonDeadZoneHeight = 200;
 
 /*--------------------- Pareidolia - P5 Start -------------------------*/
 // Background images 
@@ -35,10 +40,6 @@ const imgPathList = [
   "singleboulder.jpg"
 ]
 
-// Prompts
-const drawPromptText = "Do you see something in this image? Draw it!";
-const showPromptText = "Did they see what you saw? \nTap the screen for a new image.";
-const afterSubmitText = "Great! Let's see what some other people drew.";
 /*--------------------- Drawings variables -------------------------*/
 /* 
  * class Drawing 
@@ -68,17 +69,18 @@ const Modes = Object.freeze({
   SHOW: 2
 });
 
-/*--------------------- Buttons -------------------------*/
-const buttonOffset = 100;
-const buttonDeadZoneHeight = 200;
-
 /*--------------------- END -------------------------*/
 
 class Sketch {
-  constructor(config, appScale, drawingData, updateDrawingData) {
+  constructor(
+    vueContainer,
+    config, 
+    appScale, 
+    drawingData) {
+
+    this.vueContainer = vueContainer;
     this.config = config;
     this.appScale = appScale;
-    this.drawTextIn = 3;
     this.font;
 
     this.currentMode = Modes.DRAW;
@@ -88,12 +90,7 @@ class Sketch {
     this.currentImageIndex = 0;
     this.currentColorIndex = 0;
 
-    this.allButtons = [];
-    this.buttonHeight;
-    this.promptTextSize = 50; 
-
     this.drawingList = drawingData;
-    this.updateDrawingData = updateDrawingData;
     this.strokeList = [];
     this.currentStroke = [];
 
@@ -116,31 +113,29 @@ class Sketch {
       p.setup = () => {
         p.createCanvas(canvasW, canvasH);
 
-        this.buttonHeight = canvasH - 120;
-        p.textSize(this.promptTextSize);
-        p.textAlign(p.CENTER);
         p.strokeWeight(setStrokeWeight);
         p.stroke(colorList[this.currentColorIndex]);
         p.background('blue');
 
-        this.renderBackground(p);
-        this.buttonInit(p);
+        p.drawingContext.shadowBlur = 20;
+        p.drawingContext.shadowColor = 'black';
+
+        this.renderBackground();
       };
 
+      // Draw loop 
+      // TODO: handle flash animation better, more cleanly 
       p.draw = () => {
         if (this.currentMode == Modes.SHOW) {
-          this.renderShowModeFrame(p);
+          this.renderShowModeFrame();
         }
-        this.handleFlashAnimation(p);
-        if (this.currentMode != Modes.SUBMIT) {
-          this.drawPrompt(p);
-        }
+        this.handleFlashAnimation();
       };
 
       p.reset = () => {
         p.clear();
-        this.nextImage(p);
-        this.resetCanvas(p);
+        this.nextImage();
+        this.resetCanvas();
       };
 
       p.mouseReleased = () => {
@@ -157,19 +152,30 @@ class Sketch {
 
       p.touchStarted = () => {
         // touch functionality means the mouse can "jump" across the screen 
-        // This is a hack to make sure the stroke starts where touch starts 
+        // pmouse is previous mouse; this is built-in P5 functionality 
+
+        // this hack ensures that lines don't cross per-touch
         p.pmouseX = p.mouseX/this.appScale;
         p.pmouseY = p.mouseY/this.appScale;
 
+        this.currentStroke.push({ x: p.mouseX/this.appScale, y: p.mouseY/this.appScale });
+
+        // TODO: handle this in the vue component 
         if (this.currentMode == Modes.SHOW) {
-          this.toggleMode(p);
+          this.toggleMode();
         }
       }
 
       p.mouseDragged = () => {
-        if (this.currentMode == Modes.DRAW && this.pointerLocationIsValid(p))
-          p.line(p.pmouseX / this.appScale, p.pmouseY / this.appScale, p.mouseX / this.appScale, p.mouseY / this.appScale);
-        this.currentStroke.push({ x: p.mouseX/this.appScale, y: p.mouseY/this.appScale });
+        if (this.currentMode == Modes.DRAW && this.pointerLocationIsValid()) {
+          this.currentStroke.push({ x: p.mouseX/this.appScale, y: p.mouseY/this.appScale });
+          p.line(
+            this.currentStroke.at(-2).x,
+            this.currentStroke.at(-2).y,
+            this.currentStroke.at(-1).x,
+            this.currentStroke.at(-1).y
+          )
+        }
       }
     };
 
@@ -177,27 +183,28 @@ class Sketch {
   }
 
   //-------------------- Mode & Mode Control ---------------------//
-
-  toggleMode = (p) => {
+  // TODO: separate out toggleMode into individual controls with safety
+  // Logic is too complex here, hard to read and understand 
+  toggleMode = () => {
     if (this.currentMode == Modes.DRAW) { // draw -> submit -> show 
-      for (var b of this.allButtons) { b.hide(); } // hide all buttons
+      this.vueContainer.showMode();
       this.currentMode = Modes.SUBMIT;
-      this.renderBackground(p);
+      this.renderBackground();
       this.timeEnteredShow = Date.now();
 
-      setTimeout(() => { this.showModeSetup(p); }, 2000); //goes to ShowMode in 2 seconds
+      setTimeout(() => { this.showModeSetup(); }, 2000); //goes to ShowMode in 2 seconds
 
       // Set a timeout to return to draw mode after 30 seconds of Show 
       setTimeout(() => {
         let nowTime = Date.now();
-        if (this.currentMode == Modes.SHOW && ((nowTime - this.timeEnteredShow) >= 30000)) {
-          this.toggleMode(p);
+        if (this.currentMode == Modes.SHOW && ((nowTime - this.timeEnteredShow) >= showModeLength)) {
+          this.toggleMode();
         }
-      }, 30000)
+      }, showModeLength)
 
     } else if (this.currentMode == Modes.SHOW) { // show mode -> draw mode 
-      this.nextImage(p); // Move to next image after show
-      for (var b of this.allButtons) { b.show(); } // show all buttons
+      this.vueContainer.drawMode();
+      this.nextImage(); // Move to next image after show
       this.currentMode = Modes.DRAW
 
       this.showModeTeardown();
@@ -206,15 +213,17 @@ class Sketch {
     }
   }
 
-  showModeSetup = (p) => {
-    this.renderBackground(p);
+  showModeSetup = () => {
+    // Get a max of maxDrawingsToShow previous drawings to show during show mode 
     this.drawingsForCurrentImage = this.drawingList.filter(d => d.imgName == this.loadedImages[this.currentImageIndex].name);
     if (this.drawingsForCurrentImage.length > maxDrawingsToShow) {
       this.drawingsForCurrentImage = this.drawingsForCurrentImage.slice(-(maxDrawingsToShow)); // only show the 5 latest images
     }
+
+    // Prep to draw first drawing at 0 opacity 
     this.currentImageDrawingIndex = 0;
     this.drawingOpacity = 0;
-    this.drawingColor = p.color(this.drawingsForCurrentImage[this.currentImageDrawingIndex].colorStr);
+    this.drawingColor = this.p5SketchObject.color(this.drawingsForCurrentImage[this.currentImageDrawingIndex].colorStr);
   
     this.currentMode = Modes.SHOW;
   }
@@ -225,46 +234,41 @@ class Sketch {
     this.drawingsForCurrentImage = [];
   }
 
-  renderShowModeFrame = (p) => {
-    this.renderBackground(p);
+  renderShowModeFrame = () => {
+    const p = this.p5SketchObject;
+
+    // Reset background 
+    this.renderBackground();
   
+    // Render the drawing at current opacity 
     p.push();
     let drawing = this.drawingsForCurrentImage[this.currentImageDrawingIndex];
     this.drawingColor.setAlpha(this.drawingOpacity);
     p.stroke(this.drawingColor);
-    this.drawStrokes(p, drawing.strokes);
+    this.drawStrokes(drawing.strokes);
     p.pop();
   
+    // Increase opacity until max, then move to next drawing
     if (this.drawingOpacity < 255) {
       this.drawingOpacity+=2;
     } else {
-      this.nextDrawing(p);
+      this.nextDrawing();
       this.drawingOpacity = 0;
     }
   }
 
-  nextDrawing = (p) => {
+  nextDrawing = () => {
     this.currentImageDrawingIndex = this.currentImageDrawingIndex < this.drawingsForCurrentImage.length - 1 ? this.currentImageDrawingIndex + 1 : 0;
-    this.drawingColor = p.color(this.drawingsForCurrentImage[this.currentImageDrawingIndex].colorStr);
+    this.drawingColor = this.p5SketchObject.color(this.drawingsForCurrentImage[this.currentImageDrawingIndex].colorStr);
   }
 
-  handleFlashAnimation = (p) => {
+  handleFlashAnimation = () => {
+    const p = this.p5SketchObject;
+
     if (this.flashOpacity > 0) {
       p.push();
-      // Rendering submit text
-      this.renderBackground(p);
-      p.noStroke();
-      p.fill('black');
-      p.rectMode(p.CENTER);
-      p.rect(canvasW/2, canvasH/2 - (this.promptTextSize/3), canvasW, 100);
-      p.strokeWeight(3);
-      p.stroke('black');
-      p.fill('yellow');
-      p.textAlign(p.CENTER);
-      p.text(afterSubmitText, canvasW/2, canvasH/2);
-      p.pop();
-  
-      p.push();
+      this.renderBackground();
+
       // Render the "flash" animation
       p.noStroke();
       let flashColor = p.color("white");
@@ -277,84 +281,41 @@ class Sketch {
   }
 
   //-------------------- Mode & Mode Control ---------------------//
-
-  buttonInit = (p) => {
-    let totalWidth = 0;
-
-    let undoButton = p.createButton("Undo");
-    undoButton.mousePressed(()=>{this.undo(p)});
-    undoButton.class("undoButton");
-    undoButton.position(60, this.buttonHeight);
-    this.allButtons.push(undoButton);
-
-
-    let submitButton = p.createButton("Submit Your Drawing");
-    submitButton.mousePressed(() => { this.submitDrawing(p)} );
-    submitButton.class('submitButton');
-    submitButton.position((canvasW-submitButton.width)/2 - 40, this.buttonHeight);
-    this.allButtons.push(submitButton);
-
-
-    // let nextButton = p.createImg("assets/arrow-forward.png");
-    let nextButton = p.createButton("New Image");
-    nextButton.mousePressed(() => {this.nextImage(p)} );
-    nextButton.position(canvasW-300, this.buttonHeight);
-    nextButton.class("nextButton");
-    this.allButtons.push(nextButton);
-  }
-
-  drawPrompt = (p) => {
-    // TODO incorporate submit mode into prompt drawing for clarity
-    p.push();
-    p.fill("black");
-    p.noStroke();
-    p.rectMode(p.CORNER);
-    p.rect(0, canvasH - buttonDeadZoneHeight, canvasW, canvasH);
-
-    p.strokeWeight(3);
-    p.stroke('black');
-    p.fill('yellow');
-    if (this.currentMode == Modes.DRAW) {
-      p.text(drawPromptText, canvasW / 2, canvasH - 150);
-    } else {
-      p.text(showPromptText, canvasW / 2, canvasH - 120);
-    }
-    p.pop();
-  }
-
-  nextImage = (p) => {
+  nextImage = () => {
     this.currentImageIndex = this.currentImageIndex >= this.loadedImages.length - 1 ? 0 : this.currentImageIndex + 1;
-    this.resetCanvas(p); // also remove the current drawings 
+    this.resetCanvas(); // also remove the current drawings 
   }
 
-  renderBackground = (p) => {
-    p.image(this.loadedImages[this.currentImageIndex].loadedImage, 0, 0, canvasW, canvasH);
+  renderBackground = () => {
+    this.p5SketchObject.image(this.loadedImages[this.currentImageIndex].loadedImage, 0, 0, canvasW, canvasH);
   }
 
-  resetCanvas = (p) => {
+  resetCanvas = () => {
     this.strokeList = [];
-    this.renderBackground(p);
+    this.renderBackground();
   }
 
   //-------------------- Strokes and Drawing ---------------------//
-  submitDrawing = (p) => {
+  submitDrawing = () => {
+    const p = this.p5SketchObject;
+
     if (this.strokeList.length > 0) {
       let d = new Drawing(this.loadedImages[this.currentImageIndex].name, this.currentImageIndex, colorList[this.currentColorIndex], this.strokeList);
       this.drawingList.push(d);
   
       this.flashOpacity = 255;
       this.strokeList = [];
-      this.renderBackground(p);
-      this.changeColor(p);
-      this.toggleMode(p);
+      this.renderBackground();
+      this.changeColor();
+      this.toggleMode();
     }
 
-    this.updateDrawingData(this.drawingList);
+    this.vueContainer.updateDrawingData(this.drawingList);
   }
 
-  changeColor = (p) => {
+  changeColor = () => {
     this.currentColorIndex = this.currentColorIndex >= colorList.length - 1 ? 0 : this.currentColorIndex + 1;
-    p.stroke(colorList[this.currentColorIndex]);
+    this.p5SketchObject.stroke(colorList[this.currentColorIndex]);
   }
 
   endStroke = () => {
@@ -367,7 +328,8 @@ class Sketch {
     this.currentStroke = [];
   }
 
-  drawStrokes = (p, slist) => {
+  drawStrokes = (slist) => {
+    const p = this.p5SketchObject;
     for (var stroke of slist) {
       if (stroke.length > 1) {
         for (var i = 1; i < stroke.length; i++) {
@@ -379,20 +341,26 @@ class Sketch {
     }
   }
 
-  pointerLocationIsValid = (p) => {
-    let d = p.dist(p.pmouseX, p.pmouseY, p.mouseX, p.mouseY);
-    if (d > 100 || p.mouseY / this.appScale > (1920 - buttonDeadZoneHeight)) {
+  pointerLocationIsValid = () => {
+    const p = this.p5SketchObject;
+    // let d = p.dist(p.pmouseX, p.pmouseY, p.mouseX, p.mouseY);
+    let lastPoint = this.currentStroke.at(-1);
+
+
+    let d = p.dist(lastPoint.x, lastPoint.y, p.mouseX/this.appScale, p.mouseY/this.appScale);
+
+    if (d < 5 || d > 100 || p.mouseY / this.appScale > (1920 - buttonDeadZoneHeight)) {
       return false;
     } else {
       return true;
     }
   }
 
-  undo = (p) => {
+  undo = () => {
     if (this.strokeList.length > 0) {
       this.strokeList.pop();
-      this.renderBackground(p);
-      this.drawStrokes(p, this.strokeList);
+      this.renderBackground();
+      this.drawStrokes(this.strokeList);
     }
   }
 

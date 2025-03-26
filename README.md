@@ -45,4 +45,7 @@ By default, only errors (both caught and uncaught) are logged.
 These log files are automatically rotated when they are 1MB and only one previous log file is kept.
  
 ## Roadmap for further improvements
-Feature requests and other issues are tracked on Bitbucket: https://bitbucket.org/exploratorium/electron-vue-template/issues
+- Move text, buttons and UI overall out of the sketch component into their own components 
+- Handle line drawing issues, including re-render being different than original line 
+- Admin mode integrated  
+- call resetTimeout during show mode to prevent double image changes on end of show mode 
