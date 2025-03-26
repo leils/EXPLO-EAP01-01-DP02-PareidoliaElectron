@@ -60,8 +60,9 @@ const drawingStorePath = "assets/drawings.json";
 const setStrokeWeight = 10;
 const colorList = ["aqua", "red", "lime", "violet", "yellow"];
 
-/* There are three modes; draw mode, submit mode, and show mode 
+/* There are four modes; draw mode, submit mode, show mode, and admin mode
  * Drawing + drawing IO, image navigation, only available in drawing mode 
+ * Normal loop is Draw -> Submit -> Show -> Draw
  */
 const Modes = Object.freeze({
   DRAW: 0,
@@ -89,12 +90,13 @@ class Sketch {
 
     this.loadedImages = [];
     this.currentImageIndex = 0;
-    this.currentColorIndex = 0;
 
-    this.drawingList = drawingData;
+    this.drawingList = drawingData; // This contains all drawings stored in memory
     this.strokeList = [];
     this.currentStroke = [];
+    this.currentColorIndex = 0;
 
+    // Variables for rendering the drawings during show or admin mode 
     this.drawingsForCurrentImage = [];
     this.currentImageDrawingIndex = 0;
     this.drawingOpacity = 0;
@@ -125,9 +127,9 @@ class Sketch {
       };
 
       // Draw loop 
-      // TODO: handle flash animation better, more cleanly 
+      // The only calls we make here are animations that need to be drawn every frame
       p.draw = () => {
-        if ((this.currentMode == Modes.SHOW) || this.currentMode == Modes.ADMIN) {
+        if ((this.currentMode == Modes.SHOW)) {
           this.renderShowModeFrame();
         }
         this.handleFlashAnimation();
@@ -184,6 +186,7 @@ class Sketch {
         console.log('current mode: ', this.currentMode);
         if (p.key == "m") {
           console.log("mode change via keyboard");
+          // TODO: do we need this? can we enter adminMode from the Show? 
           if (this.currentMode == Modes.DRAW) {
             this.enterAdminMode();
           } else {
@@ -212,7 +215,9 @@ class Sketch {
   }
 
   //-------------------- Mode & Mode Control ---------------------//
-  // 
+  // This starts our "submit" animations and transitions us to "show" after 2 seconds 
+  // During show mode, we render the last X drawings for this image 
+  // and automatically return to Draw mode after a set time
   enterSubmitToShowMode = () => {
     this.currentMode = Modes.SUBMIT;
     this.renderBackground();
@@ -233,12 +238,19 @@ class Sketch {
     }, showModeLength) 
   }
 
+  // Admin Mode is reachable via keypress 'm' during Draw mode. 
+  // Admin mode requires a keyboard, and enables drawing management 
+  // <- and -> for navigation 
+  // 'd' for delete
   enterAdminMode = () => {
     this.currentMode = Modes.ADMIN;
     this.vueContainer.adminMode();
     this.showDrawingsSetup(); 
+    this.adminRenderDrawing();
   }
 
+  // Draw mode is where we spend most of our time 
+  // Here the user can draw on a given image and submit their drawing
   enterDrawMode = () => {
     this.vueContainer.drawMode();
     this.nextImage(); // Move to next image after show
@@ -269,6 +281,21 @@ class Sketch {
     this.drawingsForCurrentImage = [];
   }
 
+
+  adminRenderDrawing = () => {
+    const p = this.p5SketchObject;
+
+    // Reset background 
+    this.renderBackground();
+
+    // Render the drawing 
+    p.push();
+    let drawing = this.drawingsForCurrentImage[this.currentImageDrawingIndex];
+    p.stroke(this.drawingColor);
+    this.drawStrokes(drawing.strokes);
+    p.pop();
+  }
+
   renderShowModeFrame = () => {
     const p = this.p5SketchObject;
 
@@ -283,24 +310,24 @@ class Sketch {
     this.drawStrokes(drawing.strokes);
     p.pop();
 
-    if (this.currentMode != Modes.ADMIN) {
-      if (this.drawingOpacity < 255) {
-        this.drawingOpacity += 2;
-      } else {
-        this.nextDrawing(p);
-        this.drawingOpacity = 0;
-      }
+    if (this.drawingOpacity < 255) {
+      this.drawingOpacity += 2;
+    } else {
+      this.nextDrawing(p);
+      this.drawingOpacity = 0;
     }
   }
 
   nextDrawing = () => {
     this.currentImageDrawingIndex = this.currentImageDrawingIndex < this.drawingsForCurrentImage.length - 1 ? this.currentImageDrawingIndex + 1 : 0;
     this.drawingColor = this.p5SketchObject.color(this.drawingsForCurrentImage[this.currentImageDrawingIndex].colorStr);
+    this.adminRenderDrawing();
   }
 
   prevDrawing = () => {
     this.currentImageDrawingIndex = this.currentImageDrawingIndex > 0 ? this.currentImageDrawingIndex - 1 : this.drawingsForCurrentImage.length - 1;
     this.drawingColor = this.p5SketchObject.color(this.drawingsForCurrentImage[this.currentImageDrawingIndex].colorStr);
+    this.adminRenderDrawing();
   }
 
   deleteDrawing = () => {
