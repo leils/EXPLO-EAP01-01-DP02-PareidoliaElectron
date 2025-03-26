@@ -93,7 +93,12 @@ export default {
     drawMode() {
       this.inDrawMode = true;
       this.$refs.prompt.innerText = "Do you see something in this image? Draw it!";
+    },
+    adminMode() {
+      this.inDrawMode = false;
+      this.$refs.prompt.innerText = "ADMIN MODE: press d to delete drawing, arrow keys to navigate. M will exit admin mode.";
     }
+
   }
 };
 </script>

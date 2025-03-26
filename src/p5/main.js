@@ -55,7 +55,7 @@ class Drawing {
     this.strokes = strokes;
   }
 }
-const drawingStorePath = "assets/drawings.json"; 
+const drawingStorePath = "assets/drawings.json";
 
 const setStrokeWeight = 10;
 const colorList = ["aqua", "red", "lime", "violet", "yellow"];
@@ -74,8 +74,8 @@ const Modes = Object.freeze({
 class Sketch {
   constructor(
     vueContainer,
-    config, 
-    appScale, 
+    config,
+    appScale,
     drawingData) {
 
     this.vueContainer = vueContainer;
@@ -156,10 +156,10 @@ class Sketch {
         // pmouse is previous mouse; this is built-in P5 functionality 
 
         // this hack ensures that lines don't cross per-touch
-        p.pmouseX = p.mouseX/this.appScale;
-        p.pmouseY = p.mouseY/this.appScale;
+        p.pmouseX = p.mouseX / this.appScale;
+        p.pmouseY = p.mouseY / this.appScale;
 
-        this.currentStroke.push({ x: p.mouseX/this.appScale, y: p.mouseY/this.appScale });
+        this.currentStroke.push({ x: p.mouseX / this.appScale, y: p.mouseY / this.appScale });
 
         // TODO: handle this in the vue component 
         if (this.currentMode == Modes.SHOW) {
@@ -169,7 +169,7 @@ class Sketch {
 
       p.mouseDragged = () => {
         if (this.currentMode == Modes.DRAW && this.pointerLocationIsValid()) {
-          this.currentStroke.push({ x: p.mouseX/this.appScale, y: p.mouseY/this.appScale });
+          this.currentStroke.push({ x: p.mouseX / this.appScale, y: p.mouseY / this.appScale });
           p.line(
             this.currentStroke.at(-2).x,
             this.currentStroke.at(-2).y,
@@ -187,7 +187,7 @@ class Sketch {
             this.adminMode = true;
           }
 
-          this.toggleMode(p);
+          this.toggleMode();
         }
 
         if (this.adminMode && this.currentMode == Modes.SHOW) {
@@ -215,13 +215,13 @@ class Sketch {
   // Logic is too complex here, hard to read and understand 
   toggleMode = () => {
     if (this.currentMode == Modes.DRAW) { // draw -> submit -> show 
-      this.vueContainer.showMode();
-      this.currentMode = Modes.SUBMIT;
-      this.renderBackground();
-      this.timeEnteredShow = Date.now();
 
-      // Set a timeout to return to draw mode after 30 seconds of Show 
       if (!this.adminMode) {
+        this.currentMode = Modes.SUBMIT;
+        this.renderBackground();
+        this.timeEnteredShow = Date.now();
+
+        this.vueContainer.showMode();
         setTimeout(() => { this.showModeSetup(); }, 2000); //goes to ShowMode in 2 seconds
 
         setTimeout(() => {
@@ -231,6 +231,7 @@ class Sketch {
           }
         }, showModeLength)
       } else {
+        this.vueContainer.adminMode();
         this.showModeSetup();
       }
 
@@ -261,8 +262,8 @@ class Sketch {
         this.drawingsForCurrentImage = this.drawingsForCurrentImage.slice(-(maxDrawingsToShow)); // only show the 5 latest images
       }
     }
-    this.drawingColor = p.color(this.drawingsForCurrentImage[this.currentImageDrawingIndex].colorStr);
-  
+    this.drawingColor = this.p5SketchObject.color(this.drawingsForCurrentImage[this.currentImageDrawingIndex].colorStr);
+
     this.currentMode = Modes.SHOW;
   }
 
@@ -277,7 +278,7 @@ class Sketch {
 
     // Reset background 
     this.renderBackground();
-  
+
     // Render the drawing at current opacity 
     p.push();
     let drawing = this.drawingsForCurrentImage[this.currentImageDrawingIndex];
@@ -288,7 +289,7 @@ class Sketch {
 
     if (!this.adminMode) {
       if (this.drawingOpacity < 255) {
-        this.drawingOpacity+=2;
+        this.drawingOpacity += 2;
       } else {
         this.nextDrawing(p);
         this.drawingOpacity = 0;
@@ -308,7 +309,7 @@ class Sketch {
 
   deleteDrawing = () => {
     let targetId = this.drawingsForCurrentImage[this.currentImageDrawingIndex].id;
-    let targetIndex= this.drawingList.findIndex((d) => d.id == targetId);
+    let targetIndex = this.drawingList.findIndex((d) => d.id == targetId);
 
     if (targetIndex < 0) {
       console.log('Target not found during delete');
@@ -321,7 +322,7 @@ class Sketch {
         this.currentImageDrawingIndex -= 1;
       }
 
-      this.updateDrawingData(this.drawingList);
+      this.vueContainer.updateDrawingData(this.drawingList);
     }
   }
 
@@ -337,7 +338,7 @@ class Sketch {
       let flashColor = p.color("white");
       flashColor.setAlpha(this.flashOpacity);
       p.fill(flashColor);
-      p.rect(0,0,canvasW, canvasH);
+      p.rect(0, 0, canvasW, canvasH);
       this.flashOpacity = this.flashOpacity - 10;
       p.pop(0);
     }
@@ -365,7 +366,7 @@ class Sketch {
     if (this.strokeList.length > 0) {
       let d = new Drawing(this.loadedImages[this.currentImageIndex].name, this.currentImageIndex, colorList[this.currentColorIndex], this.strokeList);
       this.drawingList.push(d);
-  
+
       this.flashOpacity = 255;
       this.strokeList = [];
       this.renderBackground();
@@ -410,7 +411,7 @@ class Sketch {
     let lastPoint = this.currentStroke.at(-1);
 
 
-    let d = p.dist(lastPoint.x, lastPoint.y, p.mouseX/this.appScale, p.mouseY/this.appScale);
+    let d = p.dist(lastPoint.x, lastPoint.y, p.mouseX / this.appScale, p.mouseY / this.appScale);
 
     if (d < 5 || d > 100 || p.mouseY / this.appScale > (1920 - buttonDeadZoneHeight)) {
       return false;
