@@ -86,7 +86,6 @@ class Sketch {
     this.font;
 
     this.currentMode = Modes.DRAW;
-    this.timeEnteredShow = 0;
 
     this.loadedImages = [];
     this.currentImageIndex = 0;
@@ -221,7 +220,6 @@ class Sketch {
   enterSubmitToShowMode = () => {
     this.currentMode = Modes.SUBMIT;
     this.renderBackground();
-    this.timeEnteredShow = Date.now();
 
     this.vueContainer.showMode();
     setTimeout(() => { 
@@ -230,12 +228,13 @@ class Sketch {
     }, 2000); //goes to ShowMode in 2 seconds
 
     // If we are in Show mode too long, return to Draw Mode
-    setTimeout(() => {
+    setTimeout((timeEnteredShow) => {
+      console.log('running timeout');
       let nowTime = Date.now();
-      if (this.currentMode == Modes.SHOW && ((nowTime - this.timeEnteredShow) >= 30000)) {
+      if (this.currentMode == Modes.SHOW && ((nowTime - timeEnteredShow) >= showModeLength)) {
         this.enterDrawMode();
       }
-    }, showModeLength) 
+    }, showModeLength, Date.now()) 
   }
 
   // Admin Mode is reachable via keypress 'm' during Draw mode. 
@@ -321,7 +320,9 @@ class Sketch {
   nextDrawing = () => {
     this.currentImageDrawingIndex = this.currentImageDrawingIndex < this.drawingsForCurrentImage.length - 1 ? this.currentImageDrawingIndex + 1 : 0;
     this.drawingColor = this.p5SketchObject.color(this.drawingsForCurrentImage[this.currentImageDrawingIndex].colorStr);
-    this.adminRenderDrawing();
+    if (this.currentMode == Modes.ADMIN) {
+      this.adminRenderDrawing();
+    }
   }
 
   prevDrawing = () => {
