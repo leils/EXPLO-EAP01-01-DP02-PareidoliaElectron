@@ -31,12 +31,13 @@ class imageStruct {
 const imgPathBase = "assets/backgroundImages/";
 
 const imgPathList = [
-  "tree.jpg",
+  "img_Holes-in-stone.png",
+  "img_Building-face.png",
+  "img_Tree-bark.png",
   "sandstone.jpg",
-  "mountain.jpg",
   "burl.jpg",
   "boulders.jpg",
-  "house.jpg",
+  "img_Wood-grain.png",
   "singleboulder.jpg"
 ]
 

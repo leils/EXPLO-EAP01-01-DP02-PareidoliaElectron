@@ -1,11 +1,11 @@
 {
-  "name": "pareidolia-electron",
+  "name": "eye-spy-electron",
   "version": "2.1.0",
   "author": "Leia Chang - The Exploratorium",
   "private": true,
   "build": {
-    "appId": "edu.exploratorium.electron-vue-template",
-    "copyright": "Copyright © 2023 ${author}",
+    "appId": "edu.exploratorium.eyespyelectron",
+    "copyright": "Copyright © 2024 ${author}",
     "nsis": {
       "oneClick": false,
       "allowToChangeInstallationDirectory": true
