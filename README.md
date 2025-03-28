@@ -1,7 +1,11 @@
 # Pareidolia port to Electron + Vue template
-template tested with node v17.9.1.
 
-This template demonstrates common uses of Electron and Vue at the Exploratorium. 
+"Pareidolia" exhibit, aka "Eye Spy"
+
+Press `m` to toggle admin mode. 
+In admin mode, use arrow keys to navigate and `d` to delete a drawing. 
+
+template tested with node v17.9.1.
 
 ## To build or run use one of these commands:
 
@@ -45,7 +49,5 @@ By default, only errors (both caught and uncaught) are logged.
 These log files are automatically rotated when they are 1MB and only one previous log file is kept.
  
 ## Roadmap for further improvements
-- Move text, buttons and UI overall out of the sketch component into their own components 
-- Handle line drawing issues, including re-render being different than original line 
-- Admin mode integrated  
-- call resetTimeout during show mode to prevent double image changes on end of show mode 
+[ ] call resetTimeout during show mode to prevent double image changes on end of show mode 
+[ ] Move Admin mode, other mode changes out of the sketch into Vue 
