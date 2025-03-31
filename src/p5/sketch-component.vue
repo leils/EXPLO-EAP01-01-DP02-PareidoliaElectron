@@ -106,7 +106,7 @@ export default {
       setTimeout((timeEnteredShow) => {
         console.log('running timeout');
         let nowTime = Date.now();
-        if (this.mode = Modes.SHOW && ((nowTime - timeEnteredShow) >= 5000)) {
+        if (this.mode == Modes.SHOW && ((nowTime - timeEnteredShow) >= 5000)) {
           this.sketch.enterDrawMode();
         }
       }, 5000, Date.now()) 
