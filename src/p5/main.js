@@ -126,6 +126,7 @@ class Sketch {
 
       p.reset = () => {
         p.clear();
+        this.currentMode == this.vueContainer.Modes.DRAW;
         this.nextImage();
         this.resetCanvas();
       };
@@ -207,25 +208,22 @@ class Sketch {
   // This starts our "submit" animations and transitions us to "show" after 2 seconds 
   // During show mode, we render the last X drawings for this image 
   // and automatically return to Draw mode after a set time
-  enterSubmitToShowMode = () => {
+  enterSubmitMode = () => {
     this.currentMode = this.vueContainer.Modes.SUBMIT;
     this.renderBackground();
+  }
 
-    // TODO: move this control and timing to the VueComponent! 
-    this.vueContainer.showMode();
-    setTimeout(() => { 
-      this.showDrawingsSetup(); 
-      this.currentMode = this.vueContainer.Modes.SHOW;
-    }, 2000); //goes to ShowMode in 2 seconds
+  enterShowMode = () => {
+    this.showDrawingsSetup();
+    this.currentMode = this.vueContainer.Modes.SHOW;
 
     // If we are in Show mode too long, return to Draw Mode
-    setTimeout((timeEnteredShow) => {
-      console.log('running timeout');
-      let nowTime = Date.now();
-      if (this.currentMode == this.vueContainer.Modes.SHOW && ((nowTime - timeEnteredShow) >= showModeLength)) {
-        this.enterDrawMode();
-      }
-    }, showModeLength, Date.now()) 
+    // setTimeout((timeEnteredShow) => {
+    //   let nowTime = Date.now();
+    //   if (this.currentMode == this.vueContainer.Modes.SHOW && ((nowTime - timeEnteredShow) >= showModeLength)) {
+    //     this.enterDrawMode();
+    //   }
+    // }, showModeLength, Date.now()) 
   }
 
   // Admin Mode is reachable via keypress 'm' during Draw mode. 
@@ -243,8 +241,8 @@ class Sketch {
   // Here the user can draw on a given image and submit their drawing
   enterDrawMode = () => {
     this.vueContainer.mode = this.vueContainer.Modes.DRAW;
-    this.nextImage(); // Move to next image after show
     this.currentMode = this.vueContainer.Modes.DRAW
+    this.nextImage(); // Move to next image after show
 
     this.showModeTeardown();
   }
@@ -386,7 +384,6 @@ class Sketch {
       this.strokeList = [];
       this.renderBackground();
       this.changeColor();
-      this.enterSubmitToShowMode();
     }
 
     this.vueContainer.updateDrawingData(this.drawingList);

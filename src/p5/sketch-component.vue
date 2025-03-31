@@ -90,14 +90,27 @@ export default {
       this.sketch.undo();
     },
     submit() {
-      this.sketch.submitDrawing();
-    },
-    showMode() {
       this.mode = Modes.SUBMIT;
+      this.sketch.submitDrawing();
+      this.sketch.enterSubmitMode();
 
       setTimeout(() => {
-        this.mode = Modes.SHOW;
-      }, 2000)
+        this.showMode();
+      }, 2000);
+    },
+    showMode() {
+      this.mode = Modes.SHOW;
+      this.sketch.enterShowMode();
+
+      // todo: make timing a config
+      setTimeout((timeEnteredShow) => {
+        console.log('running timeout');
+        let nowTime = Date.now();
+        if (this.mode = Modes.SHOW && ((nowTime - timeEnteredShow) >= 5000)) {
+          this.sketch.enterDrawMode();
+        }
+      }, 5000, Date.now()) 
+
     },
     // drawMode() {
     //   this.mode = Modes.DRAW;
