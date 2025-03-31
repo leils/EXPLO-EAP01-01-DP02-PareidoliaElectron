@@ -8,7 +8,7 @@
   </div>
   <div class="uiOverlay" ref="ui">
     <div v-show="mode != Modes.SUBMIT">
-      <p  class="prompt" ref="prompt">Do you see something in this image? Draw it!</p>
+      <p  class="prompt" ref="prompt">{{ promptText() }}</p>
     </div>
     <div v-show="mode === Modes.DRAW" class="buttonBar">
       <button class="eapbutton" id="undoButton" type="button">Undo</button>
@@ -94,20 +94,28 @@ export default {
     },
     showMode() {
       this.mode = Modes.SUBMIT;
-      this.$refs.prompt.innerText = "";
-      
+
       setTimeout(() => {
         this.mode = Modes.SHOW;
-        this.$refs.prompt.innerText = "Did they see what you saw? \nTap the screen for a new image.";
       }, 2000)
     },
-    drawMode() {
-      this.mode = Modes.DRAW;
-      this.$refs.prompt.innerText = "Do you see something in this image? Draw it!";
-    },
-    adminMode() {
-      this.mode = Modes.ADMIN;
-      this.$refs.prompt.innerText = "ADMIN MODE: press d to delete drawing, arrow keys to navigate. M will exit admin mode.";
+    // drawMode() {
+    //   this.mode = Modes.DRAW;
+    // },
+    // adminMode() {
+    //   this.mode = Modes.ADMIN;
+    // },
+    promptText() {
+      switch (this.mode) {
+        case Modes.DRAW: 
+          return "Do you see something in this image? Draw it!";
+        case Modes.SUBMIT: 
+          return "";
+        case Modes.SHOW: 
+          return 'Did they see what you saw? \nTap the screen for a new image.';
+        case Modes.ADMIN:
+          return "ADMIN MODE: press d to delete drawing, arrow keys to navigate. M will exit admin mode.";
+      }
     }
 
   }

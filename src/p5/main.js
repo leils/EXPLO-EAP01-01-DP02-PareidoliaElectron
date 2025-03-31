@@ -61,17 +61,6 @@ const drawingStorePath = "assets/drawings.json";
 const setStrokeWeight = 10;
 const colorList = ["aqua", "red", "lime", "violet", "yellow"];
 
-/* There are four modes; draw mode, submit mode, show mode, and admin mode
- * Drawing + drawing IO, image navigation, only available in drawing mode 
- * Normal loop is Draw -> Submit -> Show -> Draw
- */
-const Modes = Object.freeze({
-  DRAW: 0,
-  SUBMIT: 1,
-  SHOW: 2,
-  ADMIN: 3
-});
-
 /*--------------------- END -------------------------*/
 
 class Sketch {
@@ -86,7 +75,7 @@ class Sketch {
     this.appScale = appScale;
     this.font;
 
-    this.currentMode = Modes.DRAW;
+    this.currentMode = this.vueContainer.Modes.DRAW;
 
     this.loadedImages = [];
     this.currentImageIndex = 0;
@@ -129,7 +118,7 @@ class Sketch {
       // Draw loop 
       // The only calls we make here are animations that need to be drawn every frame
       p.draw = () => {
-        if ((this.currentMode == Modes.SHOW)) {
+        if ((this.currentMode == this.vueContainer.Modes.SHOW)) {
           this.renderShowModeFrame();
         }
         this.handleFlashAnimation();
@@ -142,13 +131,13 @@ class Sketch {
       };
 
       p.mouseReleased = () => {
-        if (this.currentMode == Modes.DRAW) {
+        if (this.currentMode == this.vueContainer.Modes.DRAW) {
           this.endStroke();
         }
       }
 
       p.touchEnded = () => {
-        if (this.currentMode == Modes.DRAW) {
+        if (this.currentMode == this.vueContainer.Modes.DRAW) {
           this.endStroke();
         }
       }
@@ -164,13 +153,13 @@ class Sketch {
         this.currentStroke.push({ x: p.mouseX / this.appScale, y: p.mouseY / this.appScale });
 
         // TODO: handle this in the vue component 
-        if (this.currentMode == Modes.SHOW) {
+        if (this.currentMode == this.vueContainer.Modes.SHOW) {
           this.enterDrawMode();
         }
       }
 
       p.mouseDragged = () => {
-        if (this.currentMode == Modes.DRAW && this.pointerLocationIsValid()) {
+        if (this.currentMode == this.vueContainer.Modes.DRAW && this.pointerLocationIsValid()) {
           this.currentStroke.push({ x: p.mouseX / this.appScale, y: p.mouseY / this.appScale });
           p.line(
             this.currentStroke.at(-2).x,
@@ -187,14 +176,14 @@ class Sketch {
         if (p.key == "m") {
           console.log("mode change via keyboard");
           // TODO: do we need this? can we enter adminMode from the Show? 
-          if (this.currentMode == Modes.DRAW) {
+          if (this.currentMode == this.vueContainer.Modes.DRAW) {
             this.enterAdminMode();
           } else {
             this.enterDrawMode();
           }
         }
 
-        if (this.currentMode == Modes.ADMIN) {
+        if (this.currentMode == this.vueContainer.Modes.ADMIN) {
           if (p.keyCode === p.LEFT_ARROW) {
             console.log('prev drawing via arrow');
             this.prevDrawing();
@@ -219,20 +208,21 @@ class Sketch {
   // During show mode, we render the last X drawings for this image 
   // and automatically return to Draw mode after a set time
   enterSubmitToShowMode = () => {
-    this.currentMode = Modes.SUBMIT;
+    this.currentMode = this.vueContainer.Modes.SUBMIT;
     this.renderBackground();
 
+    // TODO: move this control and timing to the VueComponent! 
     this.vueContainer.showMode();
     setTimeout(() => { 
       this.showDrawingsSetup(); 
-      this.currentMode = Modes.SHOW;
+      this.currentMode = this.vueContainer.Modes.SHOW;
     }, 2000); //goes to ShowMode in 2 seconds
 
     // If we are in Show mode too long, return to Draw Mode
     setTimeout((timeEnteredShow) => {
       console.log('running timeout');
       let nowTime = Date.now();
-      if (this.currentMode == Modes.SHOW && ((nowTime - timeEnteredShow) >= showModeLength)) {
+      if (this.currentMode == this.vueContainer.Modes.SHOW && ((nowTime - timeEnteredShow) >= showModeLength)) {
         this.enterDrawMode();
       }
     }, showModeLength, Date.now()) 
@@ -243,8 +233,8 @@ class Sketch {
   // <- and -> for navigation 
   // 'd' for delete
   enterAdminMode = () => {
-    this.currentMode = Modes.ADMIN;
-    this.vueContainer.adminMode();
+    this.currentMode = this.vueContainer.Modes.ADMIN;
+    this.vueContainer.mode = this.vueContainer.Modes.ADMIN;
     this.showDrawingsSetup(); 
     this.adminRenderDrawing();
   }
@@ -252,9 +242,9 @@ class Sketch {
   // Draw mode is where we spend most of our time 
   // Here the user can draw on a given image and submit their drawing
   enterDrawMode = () => {
-    this.vueContainer.drawMode();
+    this.vueContainer.mode = this.vueContainer.Modes.DRAW;
     this.nextImage(); // Move to next image after show
-    this.currentMode = Modes.DRAW
+    this.currentMode = this.vueContainer.Modes.DRAW
 
     this.showModeTeardown();
   }
@@ -264,7 +254,7 @@ class Sketch {
     this.drawingsForCurrentImage = this.drawingList.filter(d => d.imgName == this.loadedImages[this.currentImageIndex].name);
     this.currentImageDrawingIndex = 0;
 
-    if (this.currentMode == Modes.ADMIN) {
+    if (this.currentMode == this.vueContainer.Modes.ADMIN) {
       this.drawingOpacity = 255;
     } else {
       this.drawingOpacity = 0;
@@ -321,7 +311,7 @@ class Sketch {
   nextDrawing = () => {
     this.currentImageDrawingIndex = this.currentImageDrawingIndex < this.drawingsForCurrentImage.length - 1 ? this.currentImageDrawingIndex + 1 : 0;
     this.drawingColor = this.p5SketchObject.color(this.drawingsForCurrentImage[this.currentImageDrawingIndex].colorStr);
-    if (this.currentMode == Modes.ADMIN) {
+    if (this.currentMode == this.vueContainer.Modes.ADMIN) {
       this.adminRenderDrawing();
     }
   }
