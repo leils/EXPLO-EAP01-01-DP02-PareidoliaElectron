@@ -3,14 +3,14 @@
   <div>
     <div id="sketch" />
   </div>
-  <div v-show="inTransitionMode" class="showTransitionOverlay">
+  <div v-show="mode === Modes.SUBMIT" class="showTransitionOverlay">
       <p class="prompt">Great! Let's see what some other people drew.</p>
   </div>
   <div class="uiOverlay" ref="ui">
-    <div v-show="!inTransitionMode">
+    <div v-show="mode != Modes.SUBMIT">
       <p  class="prompt" ref="prompt">Do you see something in this image? Draw it!</p>
     </div>
-    <div v-show="inDrawMode" class="buttonBar">
+    <div v-show="mode === Modes.DRAW" class="buttonBar">
       <button class="eapbutton" id="undoButton" type="button">Undo</button>
       <button class="eapbutton" id="submitButton" type="button">Submit</button>
       <button class="eapbutton" id="nextImageButton" type="button">Next Image</button>
@@ -23,15 +23,27 @@
 import { mapState, mapMutations } from 'vuex';
 import { Sketch } from './main.js';
 
+/* There are four modes; draw mode, submit mode, show mode, and admin mode
+ * Drawing + drawing IO, image navigation, only available in drawing mode 
+ * Normal loop is Draw -> Submit -> Show -> Draw
+ */
+ const Modes = Object.freeze({
+  DRAW: 0,
+  SUBMIT: 1,
+  SHOW: 2,
+  ADMIN: 3
+});
+
+
 export default {
   name: 'SketchComponent',
   props: {
   },
   data: function () {
     return {
+      Modes, // Modes frozen object must be attached to data for template use
       sketch: Object,
-      inDrawMode: true,
-      inTransitionMode : false,
+      mode: Modes.DRAW,
     };
   },
   computed: mapState([
@@ -81,21 +93,20 @@ export default {
       this.sketch.submitDrawing();
     },
     showMode() {
-      this.inDrawMode = false;
-      this.inTransitionMode = true;
+      this.mode = Modes.SUBMIT;
       this.$refs.prompt.innerText = "";
       
       setTimeout(() => {
-        this.inTransitionMode = false;
+        this.mode = Modes.SHOW;
         this.$refs.prompt.innerText = "Did they see what you saw? \nTap the screen for a new image.";
       }, 2000)
     },
     drawMode() {
-      this.inDrawMode = true;
+      this.mode = Modes.DRAW;
       this.$refs.prompt.innerText = "Do you see something in this image? Draw it!";
     },
     adminMode() {
-      this.inDrawMode = false;
+      this.mode = Modes.ADMIN;
       this.$refs.prompt.innerText = "ADMIN MODE: press d to delete drawing, arrow keys to navigate. M will exit admin mode.";
     }
 
