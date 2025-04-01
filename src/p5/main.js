@@ -267,6 +267,7 @@ class Sketch {
     // Render the drawing 
     p.push();
     let drawing = this.drawingsForCurrentImage[this.currentImageDrawingIndex];
+    this.drawingColor = this.p5SketchObject.color(this.drawingsForCurrentImage[this.currentImageDrawingIndex].colorStr);
     p.stroke(this.drawingColor);
     this.drawStrokes(drawing.strokes);
     p.pop();
@@ -317,11 +318,12 @@ class Sketch {
       return;
     } else {
       this.drawingList.splice(targetIndex, 1);
-      this.drawingsForCurrentImage.splice(this.currentImageDrawingIndex); // need to update our local copy of filtered images
+      this.drawingsForCurrentImage.splice(this.currentImageDrawingIndex, 1); // need to update our local copy of filtered images
 
       if (this.currentImageDrawingIndex >= this.drawingsForCurrentImage.length) { // If we deleted the last drawing
-        this.currentImageDrawingIndex -= 1;
+        this.currentImageDrawingIndex = 0;
       }
+      this.adminRenderDrawing();
 
       this.vueContainer.updateDrawingData(this.drawingList);
     }
