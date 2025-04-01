@@ -14,7 +14,6 @@ const canvasW = 1080;
 const canvasH = 1920;
 
 const maxDrawingsToShow = 5;
-const showModeLength = 10000; //default should be 30,000, shortened for testing
 
 const buttonDeadZoneHeight = 200;
 
@@ -35,7 +34,6 @@ const imgPathList = [
   "img_Building-face.png",
   "img_Tree-bark.png",
   "sandstone.jpg",
-  "burl.jpg",
   "boulders.jpg",
   "img_Wood-grain.png",
   "singleboulder.jpg"
@@ -94,7 +92,6 @@ class Sketch {
 
     const s = p => {
       p.preload = () => {
-        this.font = p.loadFont('assets/fonts/Explo-Bold.otf');
         for (var path of imgPathList) {
           let i = new imageStruct(path, imgPathBase + path);
           i.loadedImage = p.loadImage(i.path);
@@ -148,8 +145,8 @@ class Sketch {
         // pmouse is previous mouse; this is built-in P5 functionality 
 
         // this hack ensures that lines don't cross per-touch
-        p.pmouseX = p.mouseX / this.appScale;
-        p.pmouseY = p.mouseY / this.appScale;
+        // p.pmouseX = p.mouseX / this.appScale;
+        // p.pmouseY = p.mouseY / this.appScale;
 
         this.currentStroke.push({ x: p.mouseX / this.appScale, y: p.mouseY / this.appScale });
 
@@ -168,35 +165,6 @@ class Sketch {
             this.currentStroke.at(-1).x,
             this.currentStroke.at(-1).y
           )
-        }
-      }
-
-      p.keyPressed = () => {
-        console.log('keypressed registered');
-        console.log('current mode: ', this.vueContainer.mode);
-        if (p.key == "m") {
-          console.log("mode change via keyboard");
-          // TODO: do we need this? can we enter adminMode from the Show? 
-          if (this.vueContainer.mode == this.vueContainer.Modes.DRAW) {
-            this.enterAdminMode();
-          } else {
-            this.enterDrawMode();
-          }
-        }
-
-        if (this.vueContainer.mode == this.vueContainer.Modes.ADMIN) {
-          if (p.keyCode === p.LEFT_ARROW) {
-            console.log('prev drawing via arrow');
-            this.prevDrawing();
-          }
-          else if (p.keyCode === p.RIGHT_ARROW) {
-            console.log('next drawing via arrow');
-            this.nextDrawing();
-          }
-          else if (p.key == "d") {
-            console.log("d delete");
-            this.deleteDrawing();
-          }
         }
       }
     };
@@ -350,6 +318,13 @@ class Sketch {
   //-------------------- Mode & Mode Control ---------------------//
   nextImage = () => {
     this.currentImageIndex = this.currentImageIndex >= this.loadedImages.length - 1 ? 0 : this.currentImageIndex + 1;
+    this.resetCanvas(); // also remove the current drawings 
+  }
+
+  prevImage = () => {
+    console.log(this.currentImageIndex);
+    this.currentImageIndex = this.currentImageIndex > 0 ? this.currentImageIndex - 1 : this.loadedImages.length - 1;
+    console.log(this.currentImageIndex);
     this.resetCanvas(); // also remove the current drawings 
   }
 

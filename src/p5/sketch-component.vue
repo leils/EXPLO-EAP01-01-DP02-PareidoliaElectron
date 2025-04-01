@@ -112,12 +112,45 @@ export default {
       }, 5000, Date.now()) 
 
     },
-    // drawMode() {
-    //   this.mode = Modes.DRAW;
-    // },
-    // adminMode() {
-    //   this.mode = Modes.ADMIN;
-    // },
+    drawMode() {
+      this.mode = Modes.DRAW;
+      this.sketch.enterDrawMode();
+    },
+    toggleAdminMode() {
+      if (this.mode != Modes.ADMIN) {
+        this.mode = Modes.ADMIN;
+        this.sketch.enterAdminMode();
+      } else {
+        this.drawMode();
+      }
+    },
+    handleArrowKeys(key) {
+      if (this.mode == Modes.ADMIN) {
+        switch (key) {
+          case "ArrowLeft":
+            this.sketch.prevDrawing();
+            break;
+          case "ArrowRight":
+            this.sketch.nextDrawing();
+            break;
+          case "d":
+            this.sketch.deleteDrawing();
+            break;
+        } 
+      } else {
+        switch (key) {
+          case "ArrowLeft": 
+            this.sketch.prevImage();
+          case "ArrowRight":
+            this.sketch.nextImage();
+        }
+      }
+    },
+    deleteDrawing() {
+      if (this.mode == Modes.ADMIN) {
+        this.sketch.deleteDrawing();
+      }
+    },
     promptText() {
       switch (this.mode) {
         case Modes.DRAW: 
