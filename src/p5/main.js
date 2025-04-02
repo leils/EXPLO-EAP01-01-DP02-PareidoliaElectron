@@ -19,25 +19,26 @@ const buttonDeadZoneHeight = 200;
 
 /*--------------------- Pareidolia - P5 Start -------------------------*/
 // Background images 
-class imageStruct {
-  constructor(imgName, path) {
-    this.name = imgName;
-    this.path = path;
-    this.loadedImage;
+  class imageStruct {
+    constructor(imgName, path) {
+      this.name = imgName;
+      this.path = path;
+      this.loadedImage;
+    }
   }
-}
 
-const imgPathBase = "assets/backgroundImages/";
+  const imgPathBase = "assets/backgroundImages/";
 
-const imgPathList = [
-  "img_Holes-in-stone.png",
-  "img_Building-face.png",
-  "img_Tree-bark.png",
-  "sandstone.jpg",
-  "boulders.jpg",
-  "img_Wood-grain.png",
-  "singleboulder.jpg"
-]
+  const imgPathList = [
+    "img_Holes-in-stone.png",
+    "img_Building-face.png",
+    "img_Tree-bark.png",
+    "sandstone.jpg",
+    "boulders.jpg",
+    "img_Wood-grain.png",
+    "singleboulder.jpg",
+    "gabriel-vasiliu-Yg74qlouVT0-unsplash.jpg"
+  ]
 
 /*--------------------- Drawings variables -------------------------*/
 /* 
