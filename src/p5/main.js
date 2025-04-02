@@ -226,7 +226,6 @@ class Sketch {
     this.drawingsForCurrentImage = [];
   }
 
-
   adminRenderDrawing = () => {
     const p = this.p5SketchObject;
 

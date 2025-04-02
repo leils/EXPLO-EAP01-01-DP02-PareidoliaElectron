@@ -161,8 +161,10 @@ export default {
         switch (key) {
           case "ArrowLeft": 
             this.sketch.prevImage();
+            break;
           case "ArrowRight":
             this.sketch.nextImage();
+            break;
         }
       }
     },
