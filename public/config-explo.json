@@ -3,34 +3,48 @@
     "stylesheet": "explo",
     "idle": 30000
   },
-  "sketch": {
-    "imagePath": "/assets/examples/p5/vert.png"
-  },
+  "imageBasePath": "assets/backgroundImages/",
+  "backgroundImages": [
+    {
+      "path":"img_Holes-in-stone.png",
+      "creditText": "davidrh / Shutterstock"
+    },
+    {
+      "path":"img_Building-face.png",
+      "creditText": "Damian Hadjiyvanov / Shutterstock"
+    },
+    {
+      "path":"img_Tree-bark.png",
+      "creditText": "Anastasiia Bevziuk / Shutterstock"
+    },
+    {
+      "path":"sandstone.jpg",
+      "creditText": "Brandon Stoll / Unsplash"
+    },
+    {
+      "path":"boulders.jpg",
+      "creditText": "Pascal Bernardron / Unsplash"
+    },
+    {
+      "path":"img_Wood-grain.png",
+      "creditText": "Alex Buzurnyuk / Shutterstock"
+    },
+    {
+      "path":"singleboulder.jpg",
+      "creditText": "Vitor Baladini / Unsplash"
+    },
+    {
+      "path":"gabriel-vasiliu-Yg74qlouVT0-unsplash.jpg",
+      "creditText": "Gabriel Vasiliu / Unsplash"
+    }
+  ],
   "languages": [
     {
       "code": "en",
       "name": "english",
       "direction": "ltr"
-    },
-    {
-      "code": "la",
-      "name": "latin",
-      "direction": "ltr"
-    },
-    {
-      "code": "he",
-      "name": "עברית",
-      "direction": "rtl"
     }
   ],
-  "arduino": {
-    "baudRate": 9600,
-    "addresses": { 
-      "BLUE": 0, 
-      "BLACK": 1
-    },
-    "debug": false
-  },
   "admin": {
     "ui":[
       { 

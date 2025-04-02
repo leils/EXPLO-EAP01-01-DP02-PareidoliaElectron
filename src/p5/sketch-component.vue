@@ -34,6 +34,26 @@ import { Sketch } from './main.js';
   ADMIN: 3
 });
 
+class imageStruct {
+  constructor(imgName, path) {
+    this.name = imgName;
+    this.path = path;
+    this.loadedImage;
+  }
+}
+
+const imgPathBase = "assets/backgroundImages/";
+
+const imgPathList = [
+  "img_Holes-in-stone.png",
+  "img_Building-face.png",
+  "img_Tree-bark.png",
+  "sandstone.jpg",
+  "boulders.jpg",
+  "img_Wood-grain.png",
+  "singleboulder.jpg"
+]
+
 
 export default {
   name: 'SketchComponent',
