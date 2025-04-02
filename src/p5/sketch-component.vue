@@ -4,7 +4,7 @@
     <div id="sketch" />
   </div>
   <div v-show="mode === Modes.SUBMIT" class="showTransitionOverlay">
-      <p class="prompt">Great! Let's see what some other people drew.</p>
+      <p class="prompt">Great! Let's see what other people drew.</p>
   </div>
   <div class="imageCredit">
     <p class="imageCreditText">{{ currentCredits }}</p>
@@ -14,9 +14,9 @@
       <p  class="prompt" ref="prompt">{{ promptText() }}</p>
     </div>
     <div v-show="mode === Modes.DRAW" class="buttonBar">
-      <button class="eapbutton" id="undoButton" type="button">Undo</button>
+      <button class="eapbutton" id="undoButton" type="button"><img src="assets/undo-arrow.svg" width="40px" height="40px"/>Undo</button>
       <button class="eapbutton" id="submitButton" type="button">Submit</button>
-      <button class="eapbutton" id="nextImageButton" type="button">Next Image</button>
+      <button class="eapbutton" id="nextImageButton" type="button">Next Image <img src="assets/arrow-forward.svg" width="40px" height="40px"/></button>
     </div>
   </div>
 </template>
@@ -58,10 +58,10 @@ export default {
     };
   },
   computed: mapState([
-    'config',
-    'appScale',
-    'persistent',
-  ]),
+      'config',
+      'appScale',
+      'persistent',
+    ]),
   watch: {
     appScale(newValue) {
       this.sketch.appScale = newValue;
