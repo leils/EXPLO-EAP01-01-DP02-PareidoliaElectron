@@ -14,32 +14,19 @@ const canvasW = 1080;
 const canvasH = 1920;
 
 const maxDrawingsToShow = 5;
-const showModeLength = 10000; //default should be 30,000, shortened for testing
 
 const buttonDeadZoneHeight = 200;
 
 /*--------------------- Pareidolia - P5 Start -------------------------*/
 // Background images 
-class imageStruct {
-  constructor(imgName, path) {
-    this.name = imgName;
-    this.path = path;
-    this.loadedImage;
+  class imageStruct {
+    constructor(imgName, path, credit) {
+      this.name = imgName;
+      this.path = path;
+      this.creditText = credit;
+      this.loadedImage;
+    }
   }
-}
-
-const imgPathBase = "assets/backgroundImages/";
-
-const imgPathList = [
-  "img_Holes-in-stone.png",
-  "img_Building-face.png",
-  "img_Tree-bark.png",
-  "sandstone.jpg",
-  "burl.jpg",
-  "boulders.jpg",
-  "img_Wood-grain.png",
-  "singleboulder.jpg"
-]
 
 /*--------------------- Drawings variables -------------------------*/
 /* 
@@ -56,21 +43,7 @@ class Drawing {
     this.strokes = strokes;
   }
 }
-const drawingStorePath = "assets/drawings.json";
-
 const setStrokeWeight = 10;
-const colorList = ["aqua", "red", "lime", "violet", "yellow"];
-
-/* There are four modes; draw mode, submit mode, show mode, and admin mode
- * Drawing + drawing IO, image navigation, only available in drawing mode 
- * Normal loop is Draw -> Submit -> Show -> Draw
- */
-const Modes = Object.freeze({
-  DRAW: 0,
-  SUBMIT: 1,
-  SHOW: 2,
-  ADMIN: 3
-});
 
 /*--------------------- END -------------------------*/
 
@@ -83,10 +56,11 @@ class Sketch {
 
     this.vueContainer = vueContainer;
     this.config = config;
+    console.log(config);
     this.appScale = appScale;
     this.font;
 
-    this.currentMode = Modes.DRAW;
+    this.vueContainer.mode = this.vueContainer.Modes.DRAW;
 
     this.loadedImages = [];
     this.currentImageIndex = 0;
@@ -105,9 +79,8 @@ class Sketch {
 
     const s = p => {
       p.preload = () => {
-        this.font = p.loadFont('assets/fonts/Explo-Bold.otf');
-        for (var path of imgPathList) {
-          let i = new imageStruct(path, imgPathBase + path);
+        for (var imgConfig of this.config.backgroundImages) {
+          let i = new imageStruct(imgConfig.path, this.config.imageBasePath + imgConfig.path, imgConfig.creditText);
           i.loadedImage = p.loadImage(i.path);
           this.loadedImages.push(i);
         }
@@ -117,7 +90,7 @@ class Sketch {
         p.createCanvas(canvasW, canvasH);
 
         p.strokeWeight(setStrokeWeight);
-        p.stroke(colorList[this.currentColorIndex]);
+        p.stroke(this.config.colors[this.currentColorIndex]);
         p.background('blue');
 
         p.drawingContext.shadowBlur = 20;
@@ -129,7 +102,7 @@ class Sketch {
       // Draw loop 
       // The only calls we make here are animations that need to be drawn every frame
       p.draw = () => {
-        if ((this.currentMode == Modes.SHOW)) {
+        if ((this.vueContainer.mode == this.vueContainer.Modes.SHOW)) {
           this.renderShowModeFrame();
         }
         this.handleFlashAnimation();
@@ -137,18 +110,19 @@ class Sketch {
 
       p.reset = () => {
         p.clear();
+        this.vueContainer.mode == this.vueContainer.Modes.DRAW;
         this.nextImage();
         this.resetCanvas();
       };
 
       p.mouseReleased = () => {
-        if (this.currentMode == Modes.DRAW) {
+        if (this.vueContainer.mode == this.vueContainer.Modes.DRAW) {
           this.endStroke();
         }
       }
 
       p.touchEnded = () => {
-        if (this.currentMode == Modes.DRAW) {
+        if (this.vueContainer.mode == this.vueContainer.Modes.DRAW) {
           this.endStroke();
         }
       }
@@ -158,19 +132,19 @@ class Sketch {
         // pmouse is previous mouse; this is built-in P5 functionality 
 
         // this hack ensures that lines don't cross per-touch
-        p.pmouseX = p.mouseX / this.appScale;
-        p.pmouseY = p.mouseY / this.appScale;
+        // p.pmouseX = p.mouseX / this.appScale;
+        // p.pmouseY = p.mouseY / this.appScale;
 
         this.currentStroke.push({ x: p.mouseX / this.appScale, y: p.mouseY / this.appScale });
 
         // TODO: handle this in the vue component 
-        if (this.currentMode == Modes.SHOW) {
+        if (this.vueContainer.mode == this.vueContainer.Modes.SHOW) {
           this.enterDrawMode();
         }
       }
 
       p.mouseDragged = () => {
-        if (this.currentMode == Modes.DRAW && this.pointerLocationIsValid()) {
+        if (this.vueContainer.mode == this.vueContainer.Modes.DRAW && this.pointerLocationIsValid()) {
           this.currentStroke.push({ x: p.mouseX / this.appScale, y: p.mouseY / this.appScale });
           p.line(
             this.currentStroke.at(-2).x,
@@ -178,35 +152,6 @@ class Sketch {
             this.currentStroke.at(-1).x,
             this.currentStroke.at(-1).y
           )
-        }
-      }
-
-      p.keyPressed = () => {
-        console.log('keypressed registered');
-        console.log('current mode: ', this.currentMode);
-        if (p.key == "m") {
-          console.log("mode change via keyboard");
-          // TODO: do we need this? can we enter adminMode from the Show? 
-          if (this.currentMode == Modes.DRAW) {
-            this.enterAdminMode();
-          } else {
-            this.enterDrawMode();
-          }
-        }
-
-        if (this.currentMode == Modes.ADMIN) {
-          if (p.keyCode === p.LEFT_ARROW) {
-            console.log('prev drawing via arrow');
-            this.prevDrawing();
-          }
-          else if (p.keyCode === p.RIGHT_ARROW) {
-            console.log('next drawing via arrow');
-            this.nextDrawing();
-          }
-          else if (p.key == "d") {
-            console.log("d delete");
-            this.deleteDrawing();
-          }
         }
       }
     };
@@ -218,24 +163,12 @@ class Sketch {
   // This starts our "submit" animations and transitions us to "show" after 2 seconds 
   // During show mode, we render the last X drawings for this image 
   // and automatically return to Draw mode after a set time
-  enterSubmitToShowMode = () => {
-    this.currentMode = Modes.SUBMIT;
+  enterSubmitMode = () => {
     this.renderBackground();
+  }
 
-    this.vueContainer.showMode();
-    setTimeout(() => { 
-      this.showDrawingsSetup(); 
-      this.currentMode = Modes.SHOW;
-    }, 2000); //goes to ShowMode in 2 seconds
-
-    // If we are in Show mode too long, return to Draw Mode
-    setTimeout((timeEnteredShow) => {
-      console.log('running timeout');
-      let nowTime = Date.now();
-      if (this.currentMode == Modes.SHOW && ((nowTime - timeEnteredShow) >= showModeLength)) {
-        this.enterDrawMode();
-      }
-    }, showModeLength, Date.now()) 
+  enterShowMode = () => {
+    this.showDrawingsSetup();
   }
 
   // Admin Mode is reachable via keypress 'm' during Draw mode. 
@@ -243,8 +176,7 @@ class Sketch {
   // <- and -> for navigation 
   // 'd' for delete
   enterAdminMode = () => {
-    this.currentMode = Modes.ADMIN;
-    this.vueContainer.adminMode();
+    this.vueContainer.mode = this.vueContainer.Modes.ADMIN;
     this.showDrawingsSetup(); 
     this.adminRenderDrawing();
   }
@@ -252,9 +184,8 @@ class Sketch {
   // Draw mode is where we spend most of our time 
   // Here the user can draw on a given image and submit their drawing
   enterDrawMode = () => {
-    this.vueContainer.drawMode();
+    this.vueContainer.mode = this.vueContainer.Modes.DRAW;
     this.nextImage(); // Move to next image after show
-    this.currentMode = Modes.DRAW
 
     this.showModeTeardown();
   }
@@ -264,7 +195,7 @@ class Sketch {
     this.drawingsForCurrentImage = this.drawingList.filter(d => d.imgName == this.loadedImages[this.currentImageIndex].name);
     this.currentImageDrawingIndex = 0;
 
-    if (this.currentMode == Modes.ADMIN) {
+    if (this.vueContainer.mode == this.vueContainer.Modes.ADMIN) {
       this.drawingOpacity = 255;
     } else {
       this.drawingOpacity = 0;
@@ -281,7 +212,6 @@ class Sketch {
     this.drawingsForCurrentImage = [];
   }
 
-
   adminRenderDrawing = () => {
     const p = this.p5SketchObject;
 
@@ -291,6 +221,7 @@ class Sketch {
     // Render the drawing 
     p.push();
     let drawing = this.drawingsForCurrentImage[this.currentImageDrawingIndex];
+    this.drawingColor = this.p5SketchObject.color(this.drawingsForCurrentImage[this.currentImageDrawingIndex].colorStr);
     p.stroke(this.drawingColor);
     this.drawStrokes(drawing.strokes);
     p.pop();
@@ -321,7 +252,7 @@ class Sketch {
   nextDrawing = () => {
     this.currentImageDrawingIndex = this.currentImageDrawingIndex < this.drawingsForCurrentImage.length - 1 ? this.currentImageDrawingIndex + 1 : 0;
     this.drawingColor = this.p5SketchObject.color(this.drawingsForCurrentImage[this.currentImageDrawingIndex].colorStr);
-    if (this.currentMode == Modes.ADMIN) {
+    if (this.vueContainer.mode == this.vueContainer.Modes.ADMIN) {
       this.adminRenderDrawing();
     }
   }
@@ -341,11 +272,12 @@ class Sketch {
       return;
     } else {
       this.drawingList.splice(targetIndex, 1);
-      this.drawingsForCurrentImage.splice(this.currentImageDrawingIndex); // need to update our local copy of filtered images
+      this.drawingsForCurrentImage.splice(this.currentImageDrawingIndex, 1); // need to update our local copy of filtered images
 
       if (this.currentImageDrawingIndex >= this.drawingsForCurrentImage.length) { // If we deleted the last drawing
-        this.currentImageDrawingIndex -= 1;
+        this.currentImageDrawingIndex = 0;
       }
+      this.adminRenderDrawing();
 
       this.vueContainer.updateDrawingData(this.drawingList);
     }
@@ -375,8 +307,15 @@ class Sketch {
     this.resetCanvas(); // also remove the current drawings 
   }
 
+  prevImage = () => {
+    this.currentImageIndex = this.currentImageIndex > 0 ? this.currentImageIndex - 1 : this.loadedImages.length - 1;
+    this.resetCanvas(); // also remove the current drawings 
+  }
+
   renderBackground = () => {
-    this.p5SketchObject.image(this.loadedImages[this.currentImageIndex].loadedImage, 0, 0, canvasW, canvasH);
+    let currentImage = this.loadedImages[this.currentImageIndex];
+    this.p5SketchObject.image(currentImage.loadedImage, 0, 0, canvasW, canvasH);
+    this.vueContainer.updateCredit(currentImage.creditText);
   }
 
   resetCanvas = () => {
@@ -389,22 +328,21 @@ class Sketch {
     const p = this.p5SketchObject;
 
     if (this.strokeList.length > 0) {
-      let d = new Drawing(this.loadedImages[this.currentImageIndex].name, this.currentImageIndex, colorList[this.currentColorIndex], this.strokeList);
+      let d = new Drawing(this.loadedImages[this.currentImageIndex].name, this.currentImageIndex, this.config.colors[this.currentColorIndex], this.strokeList);
       this.drawingList.push(d);
 
       this.flashOpacity = 255;
       this.strokeList = [];
       this.renderBackground();
       this.changeColor();
-      this.enterSubmitToShowMode();
     }
 
     this.vueContainer.updateDrawingData(this.drawingList);
   }
 
   changeColor = () => {
-    this.currentColorIndex = this.currentColorIndex >= colorList.length - 1 ? 0 : this.currentColorIndex + 1;
-    this.p5SketchObject.stroke(colorList[this.currentColorIndex]);
+    this.currentColorIndex = this.currentColorIndex >= this.config.colors.length - 1 ? 0 : this.currentColorIndex + 1;
+    this.p5SketchObject.stroke(this.config.colors[this.currentColorIndex]);
   }
 
   endStroke = () => {

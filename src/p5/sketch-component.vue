@@ -3,17 +3,20 @@
   <div>
     <div id="sketch" />
   </div>
-  <div v-show="inTransitionMode" class="showTransitionOverlay">
-      <p class="prompt">Great! Let's see what some other people drew.</p>
+  <div v-show="mode === Modes.SUBMIT" class="showTransitionOverlay">
+      <p class="prompt">Great! Let's see what other people drew.</p>
+  </div>
+  <div class="imageCredit">
+    <p class="imageCreditText">{{ currentCredits }}</p>
   </div>
   <div class="uiOverlay" ref="ui">
-    <div v-show="!inTransitionMode">
-      <p  class="prompt" ref="prompt">Do you see something in this image? Draw it!</p>
+    <div v-show="mode != Modes.SUBMIT">
+      <p  class="prompt" ref="prompt">{{ promptText() }}</p>
     </div>
-    <div v-show="inDrawMode" class="buttonBar">
-      <button class="eapbutton" id="undoButton" type="button">Undo</button>
+    <div v-show="mode === Modes.DRAW" class="buttonBar">
+      <button class="eapbutton" id="undoButton" type="button"><img src="assets/undo-arrow.svg" width="40px" height="40px"/>Undo</button>
       <button class="eapbutton" id="submitButton" type="button">Submit</button>
-      <button class="eapbutton" id="nextImageButton" type="button">Next Image</button>
+      <button class="eapbutton" id="nextImageButton" type="button">Next Image <img src="assets/arrow-forward.svg" width="40px" height="40px"/></button>
     </div>
   </div>
 </template>
@@ -23,22 +26,42 @@
 import { mapState, mapMutations } from 'vuex';
 import { Sketch } from './main.js';
 
+/* There are four modes; draw mode, submit mode, show mode, and admin mode
+ * Drawing + drawing IO, image navigation, only available in drawing mode 
+ * Normal loop is Draw -> Submit -> Show -> Draw
+ */
+ const Modes = Object.freeze({
+  DRAW: 0,
+  SUBMIT: 1,
+  SHOW: 2,
+  ADMIN: 3
+});
+
+class imageStruct {
+  constructor(imgName, path) {
+    this.name = imgName;
+    this.path = path;
+    this.loadedImage;
+  }
+}
+
 export default {
   name: 'SketchComponent',
   props: {
   },
   data: function () {
     return {
+      Modes, // Modes frozen object must be attached to data for template use
       sketch: Object,
-      inDrawMode: true,
-      inTransitionMode : false,
+      mode: Modes.DRAW,
+      currentCredits: ""
     };
   },
   computed: mapState([
-    'config',
-    'appScale',
-    'persistent',
-  ]),
+      'config',
+      'appScale',
+      'persistent',
+    ]),
   watch: {
     appScale(newValue) {
       this.sketch.appScale = newValue;
@@ -78,25 +101,81 @@ export default {
       this.sketch.undo();
     },
     submit() {
+      this.mode = Modes.SUBMIT;
       this.sketch.submitDrawing();
+      this.sketch.enterSubmitMode();
+
+      setTimeout(() => {
+        this.showMode();
+      }, this.config.sketch.submitFlashLength);
     },
     showMode() {
-      this.inDrawMode = false;
-      this.inTransitionMode = true;
-      this.$refs.prompt.innerText = "";
-      
-      setTimeout(() => {
-        this.inTransitionMode = false;
-        this.$refs.prompt.innerText = "Did they see what you saw? \nTap the screen for a new image.";
-      }, 2000)
+      this.mode = Modes.SHOW;
+      this.sketch.enterShowMode();
+
+      setTimeout((timeEnteredShow) => {
+        let nowTime = Date.now();
+        if (this.mode == Modes.SHOW && ((nowTime - timeEnteredShow) >= this.config.sketch.showModeLength)) {
+          this.sketch.enterDrawMode();
+        }
+      }, this.config.sketch.showModeLength, Date.now()) 
+
     },
     drawMode() {
-      this.inDrawMode = true;
-      this.$refs.prompt.innerText = "Do you see something in this image? Draw it!";
+      this.mode = Modes.DRAW;
+      this.sketch.enterDrawMode();
     },
-    adminMode() {
-      this.inDrawMode = false;
-      this.$refs.prompt.innerText = "ADMIN MODE: press d to delete drawing, arrow keys to navigate. M will exit admin mode.";
+    toggleAdminMode() {
+      if (this.mode != Modes.ADMIN) {
+        this.mode = Modes.ADMIN;
+        this.sketch.enterAdminMode();
+      } else {
+        this.drawMode();
+      }
+    },
+    handleArrowKeys(key) {
+      if (this.mode == Modes.ADMIN) {
+        switch (key) {
+          case "ArrowLeft":
+            this.sketch.prevDrawing();
+            break;
+          case "ArrowRight":
+            this.sketch.nextDrawing();
+            break;
+          case "d":
+            this.sketch.deleteDrawing();
+            break;
+        } 
+      } else {
+        switch (key) {
+          case "ArrowLeft": 
+            this.sketch.prevImage();
+            break;
+          case "ArrowRight":
+            this.sketch.nextImage();
+            break;
+        }
+      }
+    },
+    deleteDrawing() {
+      if (this.mode == Modes.ADMIN) {
+        this.sketch.deleteDrawing();
+      }
+    },
+    updateCredit(text) {
+      this.currentCredits = text;
+    },
+    promptText() {
+      switch (this.mode) {
+        case Modes.DRAW: 
+          return "Do you see something in this image? Draw it!";
+        case Modes.SUBMIT: 
+          return "";
+        case Modes.SHOW: 
+          return 'Did they see what you saw? \nTap the screen for a new image.';
+        case Modes.ADMIN:
+          return "ADMIN MODE: press d to delete drawing, arrow keys to navigate. M will exit admin mode.";
+      }
     }
 
   }

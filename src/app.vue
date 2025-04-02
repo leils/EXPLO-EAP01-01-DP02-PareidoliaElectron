@@ -60,6 +60,16 @@ export default {
         case '/': 
           this.toggleLanguage();
           break;
+        case 'm':
+          this.sketchAdminMode();
+          break;
+        case "ArrowLeft":
+        case "ArrowRight":
+          this.handleArrowKeys(ev.key);
+          break;
+        case "d":
+          this.deleteDrawing();
+          break;
         default: 
           if (isElectron()) {
             const ipcRenderer = require('electron').ipcRenderer;
@@ -94,7 +104,16 @@ export default {
         this.reset();
       }, this.config.template.idle);
     },
-    
+    sketchAdminMode() {
+      this.$refs.sketch.toggleAdminMode();
+    },
+    handleArrowKeys(key) {
+      this.$refs.sketch.handleArrowKeys(key);
+    },
+    deleteDrawing() {
+      this.$refs.sketch.deleteDrawing();
+    }
+
   }
 };
 </script>
