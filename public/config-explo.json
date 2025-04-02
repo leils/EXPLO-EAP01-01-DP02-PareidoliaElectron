@@ -4,7 +4,7 @@
     "idle": 30000
   },
   "sketch": {
-    "showModeLength": 10000,
+    "showModeLength": 30000,
     "submitFlashLength": 2000,
     "colors":["aqua", "red", "lime", "violet", "yellow"],
     "imageBasePath": "assets/backgroundImages/",
