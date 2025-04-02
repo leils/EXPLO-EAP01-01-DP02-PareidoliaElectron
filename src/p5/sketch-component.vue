@@ -6,6 +6,9 @@
   <div v-show="mode === Modes.SUBMIT" class="showTransitionOverlay">
       <p class="prompt">Great! Let's see what some other people drew.</p>
   </div>
+  <div class="imageCredit">
+    <p class="imageCreditText">{{ currentCredits }}</p>
+  </div>
   <div class="uiOverlay" ref="ui">
     <div v-show="mode != Modes.SUBMIT">
       <p  class="prompt" ref="prompt">{{ promptText() }}</p>
@@ -42,19 +45,6 @@ class imageStruct {
   }
 }
 
-const imgPathBase = "assets/backgroundImages/";
-
-const imgPathList = [
-  "img_Holes-in-stone.png",
-  "img_Building-face.png",
-  "img_Tree-bark.png",
-  "sandstone.jpg",
-  "boulders.jpg",
-  "img_Wood-grain.png",
-  "singleboulder.jpg"
-]
-
-
 export default {
   name: 'SketchComponent',
   props: {
@@ -64,6 +54,7 @@ export default {
       Modes, // Modes frozen object must be attached to data for template use
       sketch: Object,
       mode: Modes.DRAW,
+      currentCredits: ""
     };
   },
   computed: mapState([
@@ -116,20 +107,18 @@ export default {
 
       setTimeout(() => {
         this.showMode();
-      }, 2000);
+      }, this.config.sketch.submitFlashLength);
     },
     showMode() {
       this.mode = Modes.SHOW;
       this.sketch.enterShowMode();
 
-      // todo: make timing a config
       setTimeout((timeEnteredShow) => {
-        console.log('running timeout');
         let nowTime = Date.now();
-        if (this.mode == Modes.SHOW && ((nowTime - timeEnteredShow) >= 5000)) {
+        if (this.mode == Modes.SHOW && ((nowTime - timeEnteredShow) >= this.config.sketch.showModeLength)) {
           this.sketch.enterDrawMode();
         }
-      }, 5000, Date.now()) 
+      }, this.config.sketch.showModeLength, Date.now()) 
 
     },
     drawMode() {
@@ -172,6 +161,9 @@ export default {
       if (this.mode == Modes.ADMIN) {
         this.sketch.deleteDrawing();
       }
+    },
+    updateCredit(text) {
+      this.currentCredits = text;
     },
     promptText() {
       switch (this.mode) {

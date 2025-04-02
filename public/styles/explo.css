@@ -288,3 +288,19 @@ button,
   font-size: 3.2rem;
   padding: 0 1em;
 }
+
+.imageCredit {
+  position: fixed;
+  bottom: 300px;
+  text-align: right;
+  right: 0;
+  z-index: 9999;
+  color: white;
+  margin: 0px;
+  padding: 8px;
+  background: rgba(0, 0, 0, 0.3);
+}
+
+.imageCreditText {
+  margin: 0px;
+}

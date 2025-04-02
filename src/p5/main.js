@@ -20,25 +20,13 @@ const buttonDeadZoneHeight = 200;
 /*--------------------- Pareidolia - P5 Start -------------------------*/
 // Background images 
   class imageStruct {
-    constructor(imgName, path) {
+    constructor(imgName, path, credit) {
       this.name = imgName;
       this.path = path;
+      this.creditText = credit;
       this.loadedImage;
     }
   }
-
-  const imgPathBase = "assets/backgroundImages/";
-
-  const imgPathList = [
-    "img_Holes-in-stone.png",
-    "img_Building-face.png",
-    "img_Tree-bark.png",
-    "sandstone.jpg",
-    "boulders.jpg",
-    "img_Wood-grain.png",
-    "singleboulder.jpg",
-    "gabriel-vasiliu-Yg74qlouVT0-unsplash.jpg"
-  ]
 
 /*--------------------- Drawings variables -------------------------*/
 /* 
@@ -55,10 +43,7 @@ class Drawing {
     this.strokes = strokes;
   }
 }
-const drawingStorePath = "assets/drawings.json";
-
 const setStrokeWeight = 10;
-const colorList = ["aqua", "red", "lime", "violet", "yellow"];
 
 /*--------------------- END -------------------------*/
 
@@ -71,6 +56,7 @@ class Sketch {
 
     this.vueContainer = vueContainer;
     this.config = config;
+    console.log(config);
     this.appScale = appScale;
     this.font;
 
@@ -93,8 +79,8 @@ class Sketch {
 
     const s = p => {
       p.preload = () => {
-        for (var path of imgPathList) {
-          let i = new imageStruct(path, imgPathBase + path);
+        for (var imgConfig of this.config.backgroundImages) {
+          let i = new imageStruct(imgConfig.path, this.config.imageBasePath + imgConfig.path, imgConfig.creditText);
           i.loadedImage = p.loadImage(i.path);
           this.loadedImages.push(i);
         }
@@ -104,7 +90,7 @@ class Sketch {
         p.createCanvas(canvasW, canvasH);
 
         p.strokeWeight(setStrokeWeight);
-        p.stroke(colorList[this.currentColorIndex]);
+        p.stroke(this.config.colors[this.currentColorIndex]);
         p.background('blue');
 
         p.drawingContext.shadowBlur = 20;
@@ -322,14 +308,14 @@ class Sketch {
   }
 
   prevImage = () => {
-    console.log(this.currentImageIndex);
     this.currentImageIndex = this.currentImageIndex > 0 ? this.currentImageIndex - 1 : this.loadedImages.length - 1;
-    console.log(this.currentImageIndex);
     this.resetCanvas(); // also remove the current drawings 
   }
 
   renderBackground = () => {
-    this.p5SketchObject.image(this.loadedImages[this.currentImageIndex].loadedImage, 0, 0, canvasW, canvasH);
+    let currentImage = this.loadedImages[this.currentImageIndex];
+    this.p5SketchObject.image(currentImage.loadedImage, 0, 0, canvasW, canvasH);
+    this.vueContainer.updateCredit(currentImage.creditText);
   }
 
   resetCanvas = () => {
@@ -342,7 +328,7 @@ class Sketch {
     const p = this.p5SketchObject;
 
     if (this.strokeList.length > 0) {
-      let d = new Drawing(this.loadedImages[this.currentImageIndex].name, this.currentImageIndex, colorList[this.currentColorIndex], this.strokeList);
+      let d = new Drawing(this.loadedImages[this.currentImageIndex].name, this.currentImageIndex, this.config.colors[this.currentColorIndex], this.strokeList);
       this.drawingList.push(d);
 
       this.flashOpacity = 255;
@@ -355,8 +341,8 @@ class Sketch {
   }
 
   changeColor = () => {
-    this.currentColorIndex = this.currentColorIndex >= colorList.length - 1 ? 0 : this.currentColorIndex + 1;
-    this.p5SketchObject.stroke(colorList[this.currentColorIndex]);
+    this.currentColorIndex = this.currentColorIndex >= this.config.colors.length - 1 ? 0 : this.currentColorIndex + 1;
+    this.p5SketchObject.stroke(this.config.colors[this.currentColorIndex]);
   }
 
   endStroke = () => {

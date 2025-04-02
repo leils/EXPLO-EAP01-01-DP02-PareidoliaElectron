@@ -3,41 +3,46 @@
     "stylesheet": "explo",
     "idle": 30000
   },
-  "imageBasePath": "assets/backgroundImages/",
-  "backgroundImages": [
-    {
-      "path":"img_Holes-in-stone.png",
-      "creditText": "davidrh / Shutterstock"
-    },
-    {
-      "path":"img_Building-face.png",
-      "creditText": "Damian Hadjiyvanov / Shutterstock"
-    },
-    {
-      "path":"img_Tree-bark.png",
-      "creditText": "Anastasiia Bevziuk / Shutterstock"
-    },
-    {
-      "path":"sandstone.jpg",
-      "creditText": "Brandon Stoll / Unsplash"
-    },
-    {
-      "path":"boulders.jpg",
-      "creditText": "Pascal Bernardron / Unsplash"
-    },
-    {
-      "path":"img_Wood-grain.png",
-      "creditText": "Alex Buzurnyuk / Shutterstock"
-    },
-    {
-      "path":"singleboulder.jpg",
-      "creditText": "Vitor Baladini / Unsplash"
-    },
-    {
-      "path":"gabriel-vasiliu-Yg74qlouVT0-unsplash.jpg",
-      "creditText": "Gabriel Vasiliu / Unsplash"
-    }
-  ],
+  "sketch": {
+    "showModeLength": 10000,
+    "submitFlashLength": 2000,
+    "colors":["aqua", "red", "lime", "violet", "yellow"],
+    "imageBasePath": "assets/backgroundImages/",
+    "backgroundImages": [
+      {
+        "path": "img_Holes-in-stone.png",
+        "creditText": "davidrh / Shutterstock"
+      },
+      {
+        "path": "img_Building-face.png",
+        "creditText": "Damian Hadjiyvanov / Shutterstock"
+      },
+      {
+        "path": "img_Tree-bark.png",
+        "creditText": "Anastasiia Bevziuk / Shutterstock"
+      },
+      {
+        "path": "sandstone.jpg",
+        "creditText": "Brandon Stoll / Unsplash"
+      },
+      {
+        "path": "boulders.jpg",
+        "creditText": "Pascal Bernardron / Unsplash"
+      },
+      {
+        "path": "img_Wood-grain.png",
+        "creditText": "Alex Buzurnyuk / Shutterstock"
+      },
+      {
+        "path": "singleboulder.jpg",
+        "creditText": "Vitor Baladini / Unsplash"
+      },
+      {
+        "path": "gabriel-vasiliu-Yg74qlouVT0-unsplash.jpg",
+        "creditText": "Gabriel Vasiliu / Unsplash"
+      }
+    ]
+  },
   "languages": [
     {
       "code": "en",
@@ -46,21 +51,19 @@
     }
   ],
   "admin": {
-    "ui":[
-      { 
-        "type":"button",
-        "label":"Reset Sketch",
-        "description":"Clear the p5 sketch.",
-        "endpoint":"/reset"
+    "ui": [
+      {
+        "type": "button",
+        "label": "Reset Sketch",
+        "description": "Clear the p5 sketch.",
+        "endpoint": "/reset"
       }
     ],
-    "endpoints":[
+    "endpoints": [
       {
-        "path":"/reset", 
-        "eventName":"reset"
+        "path": "/reset",
+        "eventName": "reset"
       }
     ]
   }
-
 }
-
