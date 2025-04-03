@@ -130,7 +130,6 @@ class Sketch {
       p.touchStarted = () => {
         if (this.vueContainer.mode == this.vueContainer.Modes.SHOW) {
           this.vueContainer.drawMode();
-          // this.enterDrawMode();
           return;
         } else {
           this.currentStroke.push({ x: p.mouseX / this.appScale, y: p.mouseY / this.appScale });

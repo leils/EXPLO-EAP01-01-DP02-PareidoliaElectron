@@ -1,7 +1,7 @@
 {
   "template": {
     "stylesheet": "explo",
-    "idle": 30000
+    "idle": 45000
   },
   "sketch": {
     "showModeLength": 30000,
