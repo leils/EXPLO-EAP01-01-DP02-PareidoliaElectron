@@ -116,7 +116,7 @@ export default {
       setTimeout((timeEnteredShow) => {
         let nowTime = Date.now();
         if (this.mode == Modes.SHOW && ((nowTime - timeEnteredShow) >= this.config.sketch.showModeLength)) {
-          this.sketch.enterDrawMode();
+          this.drawMode();
         }
       }, this.config.sketch.showModeLength, Date.now()) 
 

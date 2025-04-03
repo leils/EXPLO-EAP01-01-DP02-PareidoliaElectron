@@ -128,19 +128,19 @@ class Sketch {
       }
 
       p.touchStarted = () => {
+        if (this.vueContainer.mode == this.vueContainer.Modes.SHOW) {
+          this.vueContainer.drawMode();
+          // this.enterDrawMode();
+          return;
+        } else {
+          this.currentStroke.push({ x: p.mouseX / this.appScale, y: p.mouseY / this.appScale });
+        }
         // touch functionality means the mouse can "jump" across the screen 
         // pmouse is previous mouse; this is built-in P5 functionality 
 
         // this hack ensures that lines don't cross per-touch
         // p.pmouseX = p.mouseX / this.appScale;
         // p.pmouseY = p.mouseY / this.appScale;
-
-        this.currentStroke.push({ x: p.mouseX / this.appScale, y: p.mouseY / this.appScale });
-
-        // TODO: handle this in the vue component 
-        if (this.vueContainer.mode == this.vueContainer.Modes.SHOW) {
-          this.enterDrawMode();
-        }
       }
 
       p.mouseDragged = () => {
@@ -184,7 +184,7 @@ class Sketch {
   // Draw mode is where we spend most of our time 
   // Here the user can draw on a given image and submit their drawing
   enterDrawMode = () => {
-    this.vueContainer.mode = this.vueContainer.Modes.DRAW;
+    // this.vueContainer.mode = this.vueContainer.Modes.DRAW;
     this.nextImage(); // Move to next image after show
 
     this.showModeTeardown();
